@@ -78,5 +78,6 @@ SwipeViewAlignment;
 - (void)swipeViewDidScroll:(SwipeView *)swipeView;
 - (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate;
 - (void)swipeViewDidEndDecelerating:(SwipeView *)swipeView;
+- (void)swipeView:(SwipeView *)swipeView didSelectItemAtIndex:(NSInteger)index;
 
 @end
