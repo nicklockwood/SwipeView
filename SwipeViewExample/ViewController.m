@@ -12,7 +12,7 @@
 
 - (NSInteger)numberOfPagesInSwipeView:(SwipeView *)swipeView
 {
-    return 5;
+    return 10;
 }
 
 - (UIView *)swipeView:(SwipeView *)swipeView viewForPageAtIndex:(NSInteger)index

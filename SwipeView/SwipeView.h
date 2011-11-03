@@ -49,6 +49,7 @@ SwipeViewAlignment;
 @property (nonatomic, readonly) NSInteger numberOfPages;
 @property (nonatomic, readonly) NSInteger currentPageIndex;
 @property (nonatomic, assign) SwipeViewAlignment alignment;
+@property (nonatomic, assign, getter = isPagingEnabled) BOOL pagingEnabled;
 @property (nonatomic, assign, getter = isScrollEnabled) BOOL scrollEnabled;
 @property (nonatomic, assign) BOOL bounces;
 
@@ -72,7 +73,6 @@ SwipeViewAlignment;
 
 
 @protocol SwipeViewDelegate <NSObject>
-
 @optional
 
 - (void)swipeViewDidScroll:(SwipeView *)swipeView;

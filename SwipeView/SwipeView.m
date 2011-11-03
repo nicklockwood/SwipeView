@@ -39,8 +39,6 @@
 @property (nonatomic, assign) NSInteger previousPageIndex;
 @property (nonatomic, assign) float pageWidth;
 
-//- (NSInteger)indexOfView:(UIView *)view;
-- (void)didTap:(UITapGestureRecognizer *)tapGesture;
 @end
 
 
@@ -54,6 +52,7 @@
 @synthesize dataSource;
 @synthesize delegate;
 @synthesize numberOfPages;
+@synthesize pagingEnabled;
 @synthesize scrollEnabled;
 @synthesize bounces;
 
@@ -61,6 +60,7 @@
 - (void)setup
 {
     scrollEnabled = YES;
+    pagingEnabled = YES;
     bounces = YES;
     
     pageViews = [[NSMutableArray alloc] init];
@@ -71,7 +71,7 @@
 	scrollView.delaysContentTouches = NO;
     scrollView.bounces = bounces;
 	scrollView.alwaysBounceHorizontal = bounces;
-	scrollView.pagingEnabled = NO;
+	scrollView.pagingEnabled = pagingEnabled;
 	scrollView.scrollEnabled = scrollEnabled;
 	scrollView.showsHorizontalScrollIndicator = NO;
 	scrollView.showsVerticalScrollIndicator = NO;
@@ -153,6 +153,12 @@
 {
     scrollEnabled = _scrollEnabled;
     scrollView.scrollEnabled = scrollEnabled;
+}
+
+- (void)setPagingEnabled:(BOOL)_pagingEnabled
+{
+    pagingEnabled = _pagingEnabled;
+    scrollView.pagingEnabled = pagingEnabled;
 }
 
 - (void)setBounces:(BOOL)_bounces
