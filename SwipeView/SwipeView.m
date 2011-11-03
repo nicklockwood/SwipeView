@@ -39,6 +39,8 @@
 @property (nonatomic, assign) NSInteger previousPageIndex;
 @property (nonatomic, assign) float pageWidth;
 
+//- (NSInteger)indexOfView:(UIView *)view;
+- (void)didTap:(UITapGestureRecognizer *)tapGesture;
 @end
 
 
@@ -66,15 +68,21 @@
     
     scrollView = [[UIScrollView alloc] init];
 	scrollView.delegate = self;
-	scrollView.delaysContentTouches = YES;
+	scrollView.delaysContentTouches = NO;
     scrollView.bounces = bounces;
 	scrollView.alwaysBounceHorizontal = bounces;
-	scrollView.pagingEnabled = YES;
+	scrollView.pagingEnabled = NO;
 	scrollView.scrollEnabled = scrollEnabled;
 	scrollView.showsHorizontalScrollIndicator = NO;
 	scrollView.showsVerticalScrollIndicator = NO;
 	scrollView.scrollsToTop = NO;
 	scrollView.clipsToBounds = NO;
+    
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
+    tapGesture.delegate = (id <UIGestureRecognizerDelegate>)self;
+    [scrollView addGestureRecognizer:tapGesture];
+    [tapGesture release];
+    
     [self addSubview:scrollView];
     
     [self reloadData];
@@ -249,6 +257,20 @@
 	{
 		[self reloadData];
 	}
+}
+
+#pragma mark -
+#pragma mark Gestures and taps
+
+
+- (void)didTap:(UITapGestureRecognizer *)tapGesture
+{
+    CGPoint point = [tapGesture locationInView:scrollView];
+    NSInteger index = (point.x/pageWidth);
+    if ([delegate respondsToSelector:@selector(swipeView:didSelectItemAtIndex:)])
+    {
+        [delegate swipeView:self didSelectItemAtIndex:index];
+    }
 }
 
 
