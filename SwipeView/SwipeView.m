@@ -1,11 +1,12 @@
 //
 //  SwipeView.m
 //
-//  Version 0.9
+//  Version 1.0
 //
 //  Created by Nick Lockwood on 03/09/2010.
-//  Copyright 2011 Charcoal Design. All rights reserved.
+//  Copyright 2011 Charcoal Design
 //
+//  Distributed under the permissive zlib License
 //  Get the latest version of SwipeView from here:
 //
 //  https://github.com/nicklockwood/SwipeView
@@ -29,61 +30,64 @@
 //  3. This notice may not be removed or altered from any source distribution.
 //
 
+
 #import "SwipeView.h"
 
 
 @interface SwipeView () <UIScrollViewDelegate>
 
-@property (nonatomic, retain) UIScrollView *scrollView;
-@property (nonatomic, retain) NSMutableArray *pageViews;
-@property (nonatomic, assign) NSInteger previousPageIndex;
-@property (nonatomic, assign) float pageWidth;
+@property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, strong) NSMutableArray *itemViews;
+@property (nonatomic, assign) NSInteger previousItemIndex;
+@property (nonatomic, assign) float itemWidth;
 
 @end
 
 
 @implementation SwipeView
 
-@synthesize pageWidth;
-@synthesize alignment;
-@synthesize previousPageIndex;
-@synthesize pageViews;
-@synthesize scrollView;
-@synthesize dataSource;
-@synthesize delegate;
-@synthesize numberOfPages;
-@synthesize pagingEnabled;
-@synthesize scrollEnabled;
-@synthesize bounces;
+@synthesize itemWidth = _itemWidth;
+@synthesize alignment = _alignment;
+@synthesize previousItemIndex = _previousItemIndex;
+@synthesize itemViews = _itemViews;
+@synthesize scrollView = _scrollView;
+@synthesize dataSource = _dataSource;
+@synthesize delegate = _delegate;
+@synthesize numberOfItems = _numberOfItems;
+@synthesize pagingEnabled = _pagingEnabled;
+@synthesize scrollEnabled = _scrollEnabled;
+@synthesize bounces = _bounces;
+@synthesize spacing = _spacing;
 
 
-- (void)setup
+- (void)setUp
 {
-    scrollEnabled = YES;
-    pagingEnabled = YES;
-    bounces = YES;
+    _scrollEnabled = YES;
+    _pagingEnabled = YES;
+    _bounces = YES;
+    _spacing = 1.0f;
     
-    pageViews = [[NSMutableArray alloc] init];
-    previousPageIndex = 0;
+    _itemViews = [[NSMutableArray alloc] init];
+    _previousItemIndex = 0;
     
-    scrollView = [[UIScrollView alloc] init];
-	scrollView.delegate = self;
-	scrollView.delaysContentTouches = NO;
-    scrollView.bounces = bounces;
-	scrollView.alwaysBounceHorizontal = bounces;
-	scrollView.pagingEnabled = pagingEnabled;
-	scrollView.scrollEnabled = scrollEnabled;
-	scrollView.showsHorizontalScrollIndicator = NO;
-	scrollView.showsVerticalScrollIndicator = NO;
-	scrollView.scrollsToTop = NO;
-	scrollView.clipsToBounds = NO;
+    _scrollView = [[UIScrollView alloc] init];
+	_scrollView.delegate = self;
+	_scrollView.delaysContentTouches = NO;
+    _scrollView.bounces = _bounces;
+	_scrollView.alwaysBounceHorizontal = _bounces;
+	_scrollView.pagingEnabled = _pagingEnabled;
+	_scrollView.scrollEnabled = _scrollEnabled;
+	_scrollView.showsHorizontalScrollIndicator = NO;
+	_scrollView.showsVerticalScrollIndicator = NO;
+	_scrollView.scrollsToTop = NO;
+	_scrollView.clipsToBounds = NO;
     
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
     tapGesture.delegate = (id <UIGestureRecognizerDelegate>)self;
-    [scrollView addGestureRecognizer:tapGesture];
+    [_scrollView addGestureRecognizer:tapGesture];
     [tapGesture release];
     
-    [self addSubview:scrollView];
+    [self addSubview:_scrollView];
     
     [self reloadData];
 }
@@ -92,7 +96,7 @@
 {
     if ((self = [super initWithCoder:aDecoder]))
     {
-        [self setup];
+        [self setUp];
     }
     return self;
 }
@@ -101,112 +105,114 @@
 {
     if ((self = [super initWithFrame:frame]))
     {
-        [self setup];
+        [self setUp];
     }
     return self;
 }
 
 - (void)dealloc
 {
-    [scrollView release];
-    [pageViews release];
-    [super dealloc];
+    [_scrollView release];
+    [_itemViews release];
+    [super ah_dealloc];
 }
 
-- (void)setDataSource:(id<SwipeViewDataSource>)_dataSource
+- (void)setDataSource:(id<SwipeViewDataSource>)dataSource
 {
-    if (dataSource != _dataSource)
+    if (_dataSource != dataSource)
     {
-        dataSource = _dataSource;
-		if (dataSource)
+        _dataSource = dataSource;
+		if (_dataSource)
 		{
 			[self reloadData];
 		}
     }
 }
 
-- (void)setDelegate:(id<SwipeViewDelegate>)_delegate
+- (void)setDelegate:(id<SwipeViewDelegate>)delegate
 {
-    if (delegate != _delegate)
+    if (_delegate != delegate)
     {
-        delegate = _delegate;
-		if (delegate && dataSource)
+        _delegate = _delegate;
+		if (_delegate && _dataSource)
 		{
 			[self reloadData];
 		}
     }
 }
 
-- (void)setAlignment:(SwipeViewAlignment)_alignment
+- (void)setAlignment:(SwipeViewAlignment)alignment
 {
-    if (alignment != _alignment)
+    if (_alignment != alignment)
     {
-        alignment = _alignment;
-        if (dataSource)
+        _alignment = alignment;
+        if (_dataSource)
 		{
 			[self reloadData];
 		}
     }
 }
 
-- (void)setScrollEnabled:(BOOL)_scrollEnabled
+- (void)setScrollEnabled:(BOOL)scrollEnabled
 {
-    scrollEnabled = _scrollEnabled;
-    scrollView.scrollEnabled = scrollEnabled;
+    _scrollEnabled = scrollEnabled;
+    _scrollView.scrollEnabled = _scrollEnabled;
 }
 
-- (void)setPagingEnabled:(BOOL)_pagingEnabled
+- (void)setPagingEnabled:(BOOL)pagingEnabled
 {
-    pagingEnabled = _pagingEnabled;
-    scrollView.pagingEnabled = pagingEnabled;
+    _pagingEnabled = pagingEnabled;
+    _scrollView.pagingEnabled = pagingEnabled;
 }
 
-- (void)setBounces:(BOOL)_bounces
+- (void)setBounces:(BOOL)bounces
 {
-    bounces = _bounces;
-    scrollView.alwaysBounceHorizontal = bounces;
-    scrollView.bounces = bounces;
+    _bounces = bounces;
+    _scrollView.alwaysBounceHorizontal = _bounces;
+    _scrollView.bounces = _bounces;
+}
+
+- (void)setSpacing:(CGFloat)spacing
+{
+    _spacing = spacing;
+    [self reloadData];
 }
 
 - (void)reloadData
 {    
 	//remove old views
-	for (UIView *view in scrollView.subviews)
+	for (UIView *view in _scrollView.subviews)
     {
 		[view removeFromSuperview];
 	}
-    [pageViews removeAllObjects];
+    [_itemViews removeAllObjects];
 	
     //get number of pages
-    previousPageIndex = self.currentPageIndex;
-	numberOfPages = [dataSource numberOfPagesInSwipeView:self];
-	self.pageViews = [NSMutableArray arrayWithCapacity:numberOfPages];
+    _previousItemIndex = self.currentItemIndex;
+	_numberOfItems = [_dataSource numberOfItemsInSwipeView:self];
+	self.itemViews = [NSMutableArray arrayWithCapacity:_numberOfItems];
     
     //set size
-	if ([dataSource respondsToSelector:@selector(swipeViewPageWidth:)])
+	if (_numberOfItems > 0)
     {
-		pageWidth = [dataSource swipeViewPageWidth:self];
-	}
-    else if (numberOfPages > 0)
-    {
-        pageWidth = [[dataSource swipeView:self viewForPageAtIndex:0] frame].size.width;
+        _itemWidth = [[_dataSource swipeView:self viewForItemAtIndex:0] frame].size.width;
     }
     else
     {
-        pageWidth = self.bounds.size.width;
+        _itemWidth = self.bounds.size.width;
 	}
-    switch (alignment)
+    switch (_alignment)
     {
         case SwipeViewAlignmentCenter:
         {
-            scrollView.frame = CGRectMake((self.frame.size.width - pageWidth)/2.0f, 0.0f, pageWidth, self.frame.size.height);
-            scrollView.contentSize = CGSizeMake(pageWidth * numberOfPages, scrollView.frame.size.height);
+            _scrollView.frame = CGRectMake((self.frame.size.width - _itemWidth * _spacing)/2.0f, 0.0f, _itemWidth * _spacing, self.frame.size.height);
+            _scrollView.contentSize = CGSizeMake(_itemWidth * _spacing * _numberOfItems, _scrollView.frame.size.height);
             break;
         }
         case SwipeViewAlignmentEdge:
         {
-            scrollView.frame = CGRectMake(0.0f, 0.0f, pageWidth, self.frame.size.height);
-            scrollView.contentSize = CGSizeMake(pageWidth * numberOfPages - (self.frame.size.width - pageWidth), scrollView.frame.size.height);
+            _scrollView.frame = CGRectMake(0.0f, 0.0f, _itemWidth * _spacing, self.frame.size.height);
+            _scrollView.contentSize = CGSizeMake(_itemWidth * _spacing * _numberOfItems - (self.frame.size.width - _itemWidth * _spacing), _scrollView.frame.size.height);
             break;
         }
         default:
@@ -216,35 +222,35 @@
     }
 	
     //load views
-	for (NSUInteger i = 0; i < numberOfPages; i++)
+	for (NSUInteger i = 0; i < _numberOfItems; i++)
     {
-		UIView *view = [dataSource swipeView:self viewForPageAtIndex:i];
-        view.center = CGPointMake(pageWidth * (i + 0.5f), scrollView.bounds.size.height/2.0f);
-		[scrollView addSubview:view];
+		UIView *view = [_dataSource swipeView:self viewForItemAtIndex:i];
+        view.center = CGPointMake(_itemWidth * _spacing * (i + 0.5f), _scrollView.bounds.size.height/2.0f);
+		[_scrollView addSubview:view];
 	}
 }
 
 - (NSInteger)clampedPageIndex:(NSInteger)index
 {
-    return MAX(0, MIN(index, numberOfPages - 1));
+    return MAX(0, MIN(index, _numberOfItems - 1));
 }
 
-- (NSInteger)currentPageIndex
+- (NSInteger)currentItemIndex
 {	
-	CGPoint offset = scrollView.contentOffset;
-	NSInteger index = round(offset.x / pageWidth); 
+	CGPoint offset = _scrollView.contentOffset;
+	NSInteger index = round(offset.x / (_itemWidth * _spacing));
 	return [self clampedPageIndex:index];
 }
 
-- (void)scrollByNumberOfPages:(NSInteger)pageCount animated:(BOOL)animated;
+- (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated;
 {
-    [self scrollToPageAtIndex:[self currentPageIndex] + pageCount animated:animated];
+    [self scrollToItemAtIndex:self.currentItemIndex + itemCount animated:animated];
 }
 
-- (void)scrollToPageAtIndex:(NSInteger)index animated:(BOOL)animated;
+- (void)scrollToItemAtIndex:(NSInteger)index animated:(BOOL)animated;
 {
 	index = [self clampedPageIndex:index];
-    [scrollView setContentOffset:CGPointMake(pageWidth * index, 0) animated:animated];
+    [_scrollView setContentOffset:CGPointMake(_itemWidth * index, 0) animated:animated];
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
@@ -252,7 +258,7 @@
 	UIView *view = [super hitTest:point withEvent:event];
 	if ([view isEqual:self])
     {
-		return scrollView;
+		return _scrollView;
 	}
 	return view;
 }
@@ -271,11 +277,11 @@
 
 - (void)didTap:(UITapGestureRecognizer *)tapGesture
 {
-    CGPoint point = [tapGesture locationInView:scrollView];
-    NSInteger index = (point.x/pageWidth);
-    if ([delegate respondsToSelector:@selector(swipeView:didSelectItemAtIndex:)])
+    CGPoint point = [tapGesture locationInView:_scrollView];
+    NSInteger index = point.x / (_itemWidth * _spacing);
+    if ([_delegate respondsToSelector:@selector(swipeView:didSelectItemAtIndex:)])
     {
-        [delegate swipeView:self didSelectItemAtIndex:index];
+        [_delegate swipeView:self didSelectItemAtIndex:index];
     }
 }
 
@@ -285,25 +291,25 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)_scrollView
 {	
-	if ([delegate respondsToSelector:@selector(swipeViewDidScroll:)])
+	if ([_delegate respondsToSelector:@selector(swipeViewDidScroll:)])
     {
-		[delegate swipeViewDidScroll:self];
+		[_delegate swipeViewDidScroll:self];
 	}
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    if ([delegate respondsToSelector:@selector(swipeViewDidEndDragging:willDecelerate:)])
+    if ([_delegate respondsToSelector:@selector(swipeViewDidEndDragging:willDecelerate:)])
     {
-        [delegate swipeViewDidEndDragging:self willDecelerate:decelerate];
+        [_delegate swipeViewDidEndDragging:self willDecelerate:decelerate];
     }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    if ([delegate respondsToSelector:@selector(swipeViewDidEndDecelerating:)])
+    if ([_delegate respondsToSelector:@selector(swipeViewDidEndDecelerating:)])
     {
-        [delegate swipeViewDidEndDecelerating:self];
+        [_delegate swipeViewDidEndDecelerating:self];
     }
 }
 

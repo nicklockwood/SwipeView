@@ -12,4 +12,6 @@
 
 @interface ViewController : UIViewController <SwipeViewDelegate, SwipeViewDataSource>
 
+@property (nonatomic, strong) IBOutlet SwipeView *swipeView;
+
 @end
