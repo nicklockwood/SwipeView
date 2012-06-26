@@ -4,7 +4,7 @@
 //  Version 1.0
 //
 //  Created by Nick Lockwood on 03/09/2010.
-//  Copyright 2011 Charcoal Design
+//  Copyright 2010 Charcoal Design
 //
 //  Distributed under the permissive zlib License
 //  Get the latest version of SwipeView from here:
@@ -130,6 +130,7 @@ SwipeViewAlignment;
 - (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView;
 - (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate;
 - (void)swipeViewDidEndDecelerating:(SwipeView *)swipeView;
+- (BOOL)swipeView:(SwipeView *)swipeView shouldSelectItemAtIndex:(NSInteger)index;
 - (void)swipeView:(SwipeView *)swipeView didSelectItemAtIndex:(NSInteger)index;
 
 @end

@@ -4,7 +4,7 @@
 //  Version 1.0
 //
 //  Created by Nick Lockwood on 03/09/2010.
-//  Copyright 2011 Charcoal Design
+//  Copyright 2010 Charcoal Design
 //
 //  Distributed under the permissive zlib License
 //  Get the latest version of SwipeView from here:
@@ -34,7 +34,7 @@
 #import "SwipeView.h"
 
 
-@interface SwipeView () <UIScrollViewDelegate>
+@interface SwipeView () <UIScrollViewDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) NSMutableDictionary *itemViews;
@@ -88,7 +88,7 @@
 	_scrollView.clipsToBounds = NO;
     
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
-    tapGesture.delegate = (id <UIGestureRecognizerDelegate>)self;
+    tapGesture.delegate = self;
     [_scrollView addGestureRecognizer:tapGesture];
     [tapGesture release];
     
@@ -484,6 +484,57 @@
 #pragma mark -
 #pragma mark Gestures and taps
 
+- (NSInteger)viewOrSuperviewIndex:(UIView *)view
+{
+    if (view == nil || view == _scrollView)
+    {
+        return NSNotFound;
+    }
+    NSInteger index = [self indexOfItemView:view];
+    if (index == NSNotFound)
+    {
+        return [self viewOrSuperviewIndex:view.superview];
+    }
+    return index;
+}
+
+- (BOOL)viewOrSuperview:(UIView *)view isKindOfClass:(Class)class
+{
+    if (view == nil || view == _scrollView)
+    {
+        return NO;
+    }
+    else if ([view isKindOfClass:class])
+    {
+        return YES;
+    }
+    return [self viewOrSuperview:view.superview isKindOfClass:class];
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gesture shouldReceiveTouch:(UITouch *)touch
+{
+    if ([gesture isKindOfClass:[UITapGestureRecognizer class]])
+    {
+        //handle tap
+        NSInteger index = [self viewOrSuperviewIndex:touch.view];
+        if (index != NSNotFound)
+        {
+            if ([_delegate respondsToSelector:@selector(swipeView:shouldSelectItemAtIndex:)])
+            {
+                if (![_delegate swipeView:self shouldSelectItemAtIndex:index])
+                {
+                    return NO;
+                }
+            }
+            if ([self viewOrSuperview:touch.view isKindOfClass:[UIControl class]] ||
+                [self viewOrSuperview:touch.view isKindOfClass:[UITableViewCell class]])
+            {
+                return NO;
+            }
+        }
+    }
+    return YES;
+}
 
 - (void)didTap:(UITapGestureRecognizer *)tapGesture
 {
