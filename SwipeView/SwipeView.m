@@ -37,9 +37,12 @@
 @interface SwipeView () <UIScrollViewDelegate>
 
 @property (nonatomic, strong) UIScrollView *scrollView;
-@property (nonatomic, strong) NSMutableArray *itemViews;
+@property (nonatomic, strong) NSMutableDictionary *itemViews;
+@property (nonatomic, strong) NSMutableSet *itemViewPool;
 @property (nonatomic, assign) NSInteger previousItemIndex;
 @property (nonatomic, assign) float itemWidth;
+
+- (UIView *)loadViewAtIndex:(NSInteger)index;
 
 @end
 
@@ -50,6 +53,7 @@
 @synthesize alignment = _alignment;
 @synthesize previousItemIndex = _previousItemIndex;
 @synthesize itemViews = _itemViews;
+@synthesize itemViewPool = _itemViewPool;
 @synthesize scrollView = _scrollView;
 @synthesize dataSource = _dataSource;
 @synthesize delegate = _delegate;
@@ -57,17 +61,18 @@
 @synthesize pagingEnabled = _pagingEnabled;
 @synthesize scrollEnabled = _scrollEnabled;
 @synthesize bounces = _bounces;
-@synthesize spacing = _spacing;
 
+
+#pragma mark -
+#pragma mark Initialisation
 
 - (void)setUp
 {
     _scrollEnabled = YES;
     _pagingEnabled = YES;
     _bounces = YES;
-    _spacing = 1.0f;
     
-    _itemViews = [[NSMutableArray alloc] init];
+    _itemViews = [[NSMutableDictionary alloc] init];
     _previousItemIndex = 0;
     
     _scrollView = [[UIScrollView alloc] init];
@@ -114,6 +119,7 @@
 {
     [_scrollView release];
     [_itemViews release];
+    [_itemViewPool release];
     [super ah_dealloc];
 }
 
@@ -172,47 +178,249 @@
     _scrollView.bounces = _bounces;
 }
 
-- (void)setSpacing:(CGFloat)spacing
+
+#pragma mark -
+#pragma mark View management
+
+- (NSArray *)indexesForVisibleItems
 {
-    _spacing = spacing;
-    [self reloadData];
+    return [[_itemViews allKeys] sortedArrayUsingSelector:@selector(compare:)];
+}
+
+- (NSArray *)visibleItemViews
+{
+    NSArray *indexes = [self indexesForVisibleItems];
+    return [_itemViews objectsForKeys:indexes notFoundMarker:[NSNull null]];
+}
+
+- (UIView *)itemViewAtIndex:(NSInteger)index
+{
+    return [_itemViews objectForKey:[NSNumber numberWithInteger:index]];
+}
+
+- (UIView *)currentItemView
+{
+    return [self itemViewAtIndex:self.currentItemIndex];
+}
+
+- (NSInteger)indexOfItemView:(UIView *)view
+{
+    NSInteger index = [[_itemViews allValues] indexOfObject:view];
+    if (index != NSNotFound)
+    {
+        return [[[_itemViews allKeys] objectAtIndex:index] integerValue];
+    }
+    return NSNotFound;
+}
+
+- (NSInteger)indexOfItemViewOrSubview:(UIView *)view
+{
+    NSInteger index = [self indexOfItemView:view];
+    if (index == NSNotFound && view != nil && view != _scrollView)
+    {
+        return [self indexOfItemViewOrSubview:view.superview];
+    }
+    return index;
+}
+
+- (void)setItemView:(UIView *)view forIndex:(NSInteger)index
+{
+    [(NSMutableDictionary *)_itemViews setObject:view forKey:[NSNumber numberWithInteger:index]];
+}
+
+- (void)removeViewAtIndex:(NSInteger)index
+{
+    NSMutableDictionary *newItemViews = [NSMutableDictionary dictionaryWithCapacity:[_itemViews count] - 1];
+    for (NSNumber *number in [self indexesForVisibleItems])
+    {
+        NSInteger i = [number integerValue];
+        if (i < index)
+        {
+            [newItemViews setObject:[_itemViews objectForKey:number] forKey:number];
+        }
+        else if (i > index)
+        {
+            [newItemViews setObject:[_itemViews objectForKey:number] forKey:[NSNumber numberWithInteger:i - 1]];
+        }
+    }
+    self.itemViews = newItemViews;
+}
+
+- (void)insertView:(UIView *)view atIndex:(NSInteger)index
+{
+    NSMutableDictionary *newItemViews = [NSMutableDictionary dictionaryWithCapacity:[_itemViews count] + 1];
+    for (NSNumber *number in [self indexesForVisibleItems])
+    {
+        NSInteger i = [number integerValue];
+        if (i < index)
+        {
+            [newItemViews setObject:[_itemViews objectForKey:number] forKey:number];
+        }
+        else
+        {
+            [newItemViews setObject:[_itemViews objectForKey:number] forKey:[NSNumber numberWithInteger:i + 1]];
+        }
+    }
+    if (view)
+    {
+        [self setItemView:view forIndex:index];
+    }
+    self.itemViews = newItemViews;
+}
+
+
+#pragma mark -
+#pragma mark View layout
+
+- (void)updateItemWidth
+{
+    if (_numberOfItems > 0)
+    {
+        if ([_itemViews count] == 0)
+        {
+            [[self loadViewAtIndex:0] removeFromSuperview];
+        }
+        UIView *itemView = [[_itemViews allValues] lastObject];
+        _itemWidth = itemView.bounds.size.width;
+    }
+}
+
+- (void)setFrameForView:(UIView *)view atIndex:(NSInteger)index
+{
+    view.center = CGPointMake(_itemWidth * (index + 0.5f), _scrollView.bounds.size.height/2.0f);
+}
+
+
+#pragma mark -
+#pragma mark View queing
+
+- (void)queueItemView:(UIView *)view
+{
+    if (view)
+    {
+        [_itemViewPool addObject:view];
+    }
+}
+
+- (UIView *)dequeueItemView
+{
+    UIView *view = [[_itemViewPool anyObject] ah_retain];
+    if (view)
+    {
+        [_itemViewPool removeObject:view];
+    }
+    return [view autorelease];
+}
+
+
+#pragma mark -
+#pragma mark View loading
+
+- (UIView *)loadViewAtIndex:(NSInteger)index
+{
+    UIView *view = [_dataSource swipeView:self viewForItemAtIndex:index reusingView:[self dequeueItemView]];    
+    if (view == nil)
+    {
+        view = [[[UIView alloc] init] autorelease];
+    }
+    
+    UIView *oldView = [self itemViewAtIndex:index];
+    if (oldView)
+    {
+        [self queueItemView:oldView];
+        [oldView removeFromSuperview];
+    }
+    
+    [self setItemView:view forIndex:index];
+    [self setFrameForView:view atIndex:index];
+    [_scrollView addSubview:view];
+
+    return view;
+}
+
+- (void)loadUnloadViews
+{
+    //calculate visible view indices
+    NSInteger count = _itemWidth? floorf(self.bounds.size.width / _itemWidth) + 2: 0;
+    NSMutableSet *visibleIndices = [NSMutableSet setWithCapacity:count];
+    NSInteger offset = self.currentItemIndex - 1;
+    if (_alignment == SwipeViewAlignmentCenter)
+    {
+        offset -= count/2 - 1;
+    }
+    offset = MAX(0, MIN(_numberOfItems - count, offset));
+    for (NSInteger i = 0; i < count; i++)
+    {
+        NSInteger index = i + offset;
+        [visibleIndices addObject:[NSNumber numberWithInteger:index]];
+    }
+    
+    //remove offscreen views
+    for (NSNumber *number in [_itemViews allKeys])
+    {
+        if (![visibleIndices containsObject:number])
+        {
+            UIView *view = [_itemViews objectForKey:number];
+            [self queueItemView:view];
+            [view removeFromSuperview];
+            [_itemViews removeObjectForKey:number];
+        }
+    }
+    
+    //add onscreen views
+    for (NSNumber *number in visibleIndices)
+    {
+        UIView *view = [_itemViews objectForKey:number];
+        if (view == nil)
+        {
+            [self loadViewAtIndex:[number integerValue]];
+        }
+    }
+}
+
+- (void)reloadItemAtIndex:(NSInteger)index
+{
+    //if view is visible
+    if ([self itemViewAtIndex:index])
+    {
+        //reload view
+        [self loadViewAtIndex:index];
+    }
 }
 
 - (void)reloadData
 {    
-	//remove old views
-	for (UIView *view in _scrollView.subviews)
+    //remove old views
+    for (UIView *view in [_itemViews allValues])
     {
-		[view removeFromSuperview];
-	}
-    [_itemViews removeAllObjects];
-	
-    //get number of pages
-    _previousItemIndex = self.currentItemIndex;
-	_numberOfItems = [_dataSource numberOfItemsInSwipeView:self];
-	self.itemViews = [NSMutableArray arrayWithCapacity:_numberOfItems];
-    
-    //set size
-	if (_numberOfItems > 0)
-    {
-        _itemWidth = [[_dataSource swipeView:self viewForItemAtIndex:0] frame].size.width;
+        [view removeFromSuperview];
     }
-    else
+    
+    //bail out if not set up yet
+    if (!_dataSource || !_scrollView)
     {
-        _itemWidth = self.bounds.size.width;
-	}
+        return;
+    }
+    
+    //get number of items
+    _numberOfItems = [_dataSource numberOfItemsInSwipeView:self];
+    
+    //set item width
+    [self updateItemWidth];
+    
+    //update alignment
     switch (_alignment)
     {
         case SwipeViewAlignmentCenter:
         {
-            _scrollView.frame = CGRectMake((self.frame.size.width - _itemWidth * _spacing)/2.0f, 0.0f, _itemWidth * _spacing, self.frame.size.height);
-            _scrollView.contentSize = CGSizeMake(_itemWidth * _spacing * _numberOfItems, _scrollView.frame.size.height);
+            _scrollView.frame = CGRectMake((self.frame.size.width - _itemWidth)/2.0f, 0.0f, _itemWidth, self.frame.size.height);
+            _scrollView.contentSize = CGSizeMake(_itemWidth * _numberOfItems, _scrollView.frame.size.height);
             break;
         }
         case SwipeViewAlignmentEdge:
         {
-            _scrollView.frame = CGRectMake(0.0f, 0.0f, _itemWidth * _spacing, self.frame.size.height);
-            _scrollView.contentSize = CGSizeMake(_itemWidth * _spacing * _numberOfItems - (self.frame.size.width - _itemWidth * _spacing), _scrollView.frame.size.height);
+            _scrollView.frame = CGRectMake(0.0f, 0.0f, _itemWidth, self.frame.size.height);
+            _scrollView.contentSize = CGSizeMake(_itemWidth * _numberOfItems - (self.frame.size.width - _itemWidth), _scrollView.frame.size.height);
             break;
         }
         default:
@@ -220,14 +428,16 @@
             break;
         }
     }
-	
-    //load views
-	for (NSUInteger i = 0; i < _numberOfItems; i++)
-    {
-		UIView *view = [_dataSource swipeView:self viewForItemAtIndex:i];
-        view.center = CGPointMake(_itemWidth * _spacing * (i + 0.5f), _scrollView.bounds.size.height/2.0f);
-		[_scrollView addSubview:view];
-	}
+    
+    //prevent false index changed event
+    _previousItemIndex = self.currentItemIndex;
+    
+    //reset view pools
+    self.itemViews = [NSMutableDictionary dictionary];
+    self.itemViewPool = [NSMutableSet set];
+    
+    //layout views
+    [self loadUnloadViews];
 }
 
 - (NSInteger)clampedPageIndex:(NSInteger)index
@@ -238,7 +448,7 @@
 - (NSInteger)currentItemIndex
 {	
 	CGPoint offset = _scrollView.contentOffset;
-	NSInteger index = round(offset.x / (_itemWidth * _spacing));
+	NSInteger index = round(offset.x / (_itemWidth));
 	return [self clampedPageIndex:index];
 }
 
@@ -278,7 +488,7 @@
 - (void)didTap:(UITapGestureRecognizer *)tapGesture
 {
     CGPoint point = [tapGesture locationInView:_scrollView];
-    NSInteger index = point.x / (_itemWidth * _spacing);
+    NSInteger index = point.x / (_itemWidth);
     if ([_delegate respondsToSelector:@selector(swipeView:didSelectItemAtIndex:)])
     {
         [_delegate swipeView:self didSelectItemAtIndex:index];
@@ -290,11 +500,22 @@
 #pragma mark UIScrollViewDelegate methods
 
 - (void)scrollViewDidScroll:(UIScrollView *)_scrollView
-{	
+{
+    [self loadUnloadViews];
+    
 	if ([_delegate respondsToSelector:@selector(swipeViewDidScroll:)])
     {
 		[_delegate swipeViewDidScroll:self];
 	}
+    
+    if (_previousItemIndex != self.currentItemIndex)
+    {
+        _previousItemIndex = self.currentItemIndex;
+        if ([_delegate respondsToSelector:@selector(swipeViewCurrentItemIndexDidChange:)])
+        {
+            [_delegate swipeViewCurrentItemIndexDidChange:self];
+        }
+    }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate

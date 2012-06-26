@@ -95,16 +95,22 @@ SwipeViewAlignment;
 @property (nonatomic, ah_weak) IBOutlet id<SwipeViewDataSource> dataSource;
 @property (nonatomic, ah_weak) IBOutlet id<SwipeViewDelegate> delegate;
 @property (nonatomic, readonly) NSInteger numberOfItems;
+@property (nonatomic, strong, readonly) NSArray *indexesForVisibleItems;
+@property (nonatomic, strong, readonly) NSArray *visibleItemViews;
 @property (nonatomic, readonly) NSInteger currentItemIndex;
+@property (nonatomic, strong, readonly) UIView *currentItemView;
 @property (nonatomic, assign) SwipeViewAlignment alignment;
 @property (nonatomic, assign, getter = isPagingEnabled) BOOL pagingEnabled;
 @property (nonatomic, assign, getter = isScrollEnabled) BOOL scrollEnabled;
 @property (nonatomic, assign) BOOL bounces;
-@property (nonatomic, assign) CGFloat spacing;
 
 - (void)reloadData;
+- (void)reloadItemAtIndex:(NSInteger)index;
 - (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated;
 - (void)scrollToItemAtIndex:(NSInteger)index animated:(BOOL)animated;
+- (UIView *)itemViewAtIndex:(NSInteger)index;
+- (NSInteger)indexOfItemView:(UIView *)view;
+- (NSInteger)indexOfItemViewOrSubview:(UIView *)view;
 
 @end
 
@@ -112,7 +118,7 @@ SwipeViewAlignment;
 @protocol SwipeViewDataSource <NSObject>
 
 - (NSInteger)numberOfItemsInSwipeView:(SwipeView *)swipeView;
-- (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index;
+- (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view;
 
 @end
 
@@ -121,6 +127,7 @@ SwipeViewAlignment;
 @optional
 
 - (void)swipeViewDidScroll:(SwipeView *)swipeView;
+- (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView;
 - (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate;
 - (void)swipeViewDidEndDecelerating:(SwipeView *)swipeView;
 - (void)swipeView:(SwipeView *)swipeView didSelectItemAtIndex:(NSInteger)index;

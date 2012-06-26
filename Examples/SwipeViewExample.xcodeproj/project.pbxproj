@@ -138,7 +138,7 @@
 		01FA7D18145B5FCB00D118DB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0450;
 			};
 			buildConfigurationList = 01FA7D1B145B5FCB00D118DB /* Build configuration list for PBXProject "SwipeViewExample" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -252,6 +252,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SwipeViewExample/SwipeViewExample-Prefix.pch";
 				INFOPLIST_FILE = "SwipeViewExample/SwipeViewExample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -263,6 +264,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SwipeViewExample/SwipeViewExample-Prefix.pch";
 				INFOPLIST_FILE = "SwipeViewExample/SwipeViewExample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
