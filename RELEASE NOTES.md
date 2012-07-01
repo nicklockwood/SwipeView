@@ -1,6 +1,7 @@
 Version 1.0.1
 
 - Fixed bug in delegate setter method
+- Fixed crash when total number of items is less than visible number
 
 Version 1.0
 

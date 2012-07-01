@@ -341,7 +341,7 @@
 - (void)loadUnloadViews
 {
     //calculate visible view indices
-    NSInteger count = _itemWidth? floorf(self.bounds.size.width / _itemWidth) + 2: 0;
+    NSInteger count = MIN(_numberOfItems, _itemWidth? floorf(self.bounds.size.width / _itemWidth) + 2: 0);
     NSMutableSet *visibleIndices = [NSMutableSet setWithCapacity:count];
     NSInteger offset = self.currentItemIndex - 1;
     if (_alignment == SwipeViewAlignmentCenter)
