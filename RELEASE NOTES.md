@@ -1,3 +1,7 @@
+Version 1.0.1
+
+- Fixed bug in delegate setter method
+
 Version 1.0
 
 - Added dynamic view loading and recycling

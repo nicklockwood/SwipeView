@@ -1,7 +1,7 @@
 //
 //  SwipeView.h
 //
-//  Version 1.0
+//  Version 1.0.1
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -57,21 +57,17 @@
 #endif
 #endif
 
-//  Weak delegate support
+//  Weak reference support
 
-#ifndef ah_weak
 #import <Availability.h>
-#if (__has_feature(objc_arc)) && \
-((defined __IPHONE_OS_VERSION_MIN_REQUIRED && \
-__IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_5_0) || \
+#if (defined __IPHONE_OS_VERSION_MIN_REQUIRED && \
+__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_5_0) || \
 (defined __MAC_OS_X_VERSION_MIN_REQUIRED && \
-__MAC_OS_X_VERSION_MIN_REQUIRED > __MAC_10_7))
-#define ah_weak weak
-#define __ah_weak __weak
-#else
-#define ah_weak unsafe_unretained
-#define __ah_weak __unsafe_unretained
-#endif
+__MAC_OS_X_VERSION_MIN_REQUIRED < __MAC_10_7)
+#undef weak
+#define weak unsafe_unretained
+#undef __weak
+#define __weak __unsafe_unretained
 #endif
 
 //  ARC Helper ends
@@ -92,8 +88,8 @@ SwipeViewAlignment;
 
 @interface SwipeView : UIView
 
-@property (nonatomic, ah_weak) IBOutlet id<SwipeViewDataSource> dataSource;
-@property (nonatomic, ah_weak) IBOutlet id<SwipeViewDelegate> delegate;
+@property (nonatomic, weak) IBOutlet id<SwipeViewDataSource> dataSource;
+@property (nonatomic, weak) IBOutlet id<SwipeViewDelegate> delegate;
 @property (nonatomic, readonly) NSInteger numberOfItems;
 @property (nonatomic, strong, readonly) NSArray *indexesForVisibleItems;
 @property (nonatomic, strong, readonly) NSArray *visibleItemViews;
