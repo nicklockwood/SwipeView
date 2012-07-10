@@ -94,13 +94,16 @@ SwipeViewAlignment;
 @property (nonatomic, readonly) CGFloat itemWidth;
 @property (nonatomic, strong, readonly) NSArray *indexesForVisibleItems;
 @property (nonatomic, strong, readonly) NSArray *visibleItemViews;
-@property (nonatomic, readonly) CGFloat scrollOffset;
 @property (nonatomic, assign) NSInteger currentItemIndex;
 @property (nonatomic, strong, readonly) UIView *currentItemView;
 @property (nonatomic, assign) SwipeViewAlignment alignment;
 @property (nonatomic, assign, getter = isPagingEnabled) BOOL pagingEnabled;
 @property (nonatomic, assign, getter = isScrollEnabled) BOOL scrollEnabled;
+@property (nonatomic, assign, getter = isScrollEnabled) BOOL wrapEnabled;
 @property (nonatomic, assign) BOOL bounces;
+@property (nonatomic, assign) float decelerationRate;
+@property (nonatomic, readonly, getter = isDragging) BOOL dragging;
+@property (nonatomic, readonly, getter = isDecelerating) BOOL decelerating;
 
 - (void)reloadData;
 - (void)reloadItemAtIndex:(NSInteger)index;

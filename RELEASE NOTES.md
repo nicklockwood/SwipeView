@@ -1,7 +1,8 @@
 Version 1.1
 
+- Added support for wrapping
 - Fixed layout glitches when rotating or resizing view
-- Added additional delegate methods
+- Added additional properties and delegate methods
 
 Version 1.0.1
 

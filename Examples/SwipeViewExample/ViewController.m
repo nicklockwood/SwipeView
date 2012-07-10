@@ -44,9 +44,9 @@
     [super viewDidLoad];
     
     //configure swipe view
-    _swipeView.alignment = SwipeViewAlignmentEdge;
+    _swipeView.alignment = SwipeViewAlignmentCenter;
     _swipeView.pagingEnabled = NO;
-    _swipeView.bounces = YES;
+    _swipeView.wrapEnabled = YES;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation

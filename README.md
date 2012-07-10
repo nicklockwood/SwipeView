@@ -63,17 +63,17 @@ An array containing the indexes of all item views currently loaded and visible i
 
 An array of all the item views currently displayed in the SwipeView (read only). The indexes of views in this array do not match the item indexes, however the order of these views matches the order of the visibleItemIndexes array property, i.e. you can get the item index of a given view in this array by retrieving the equivalent object from the visibleItemIndexes array (or, you can just use the `indexOfItemView:` method, which is much easier).
     
-    @property (nonatomic, assign) SwipeViewAlignment alignment;
-    
-This property controls how the SwipeView items are aligned. The default value of `SwipeViewAlignmentEdge` means that the item views will extend to the edges of the SwipeView. Switching the alignment to `SwipeViewAlignmentCenter` means that the leftmost and rightmost item views will be centered when the SwipeView is fully scrolled to either extreme.
-    
     @property (nonatomic, readonly) NSInteger currentItemIndex;
     
 The index of the currently centered (or left-aligned, depending on the alignment value) item view.
-    
+
     @property (nonatomic, strong, readonly) UIView *currentItemView;
     
 The currently centered (or left-aligned, depending on the alignment value) item view.
+
+    @property (nonatomic, assign) SwipeViewAlignment alignment;
+    
+This property controls how the SwipeView items are aligned. The default value of `SwipeViewAlignmentEdge` means that the item views will extend to the edges of the SwipeView. Switching the alignment to `SwipeViewAlignmentCenter` means that the leftmost and rightmost item views will be centered when the SwipeView is fully scrolled to either extreme.
     
     @property (nonatomic, assign, getter = isPagingEnabled) BOOL pagingEnabled;
     
@@ -83,13 +83,25 @@ Enables and disables paging. When paging is enabled, the SwipeView will stop at 
 
 Enables and disables user scrolling of the SwipeView. The SwipeView can still be scrolled programmatically if this property is set to NO.
 
+    @property (nonatomic, assign, getter = isScrollEnabled) BOOL wrapEnabled;
+
+Enables and disables wrapping. When in wrapped mode, the SwipeView can be scrolled indefinitely and will wrap around to the first item view when it reaches past the last item. When wrap is enabled, the bounces property has no effect.
+
 	@property (nonatomic, assign) BOOL bounces;
 
 Sets whether the SwipeView should bounce past the end and return, or stop dead.
 
-	@property (nonatomic, assign) BOOL clipsToBounds;
-	
-This is actually not a property of SwipeView but is inherited from UIView. It's included here because it's a frequently missed feature. Set this to YES to prevent the swipeView item views overflowing their bounds. You can set this property in Interface Builder by ticking the 'Clip Subviews' option. Defaults to NO.
+    @property (nonatomic, assign) float decelerationRate;
+    
+A floating-point value that determines the rate of deceleration after the user lifts their finger.
+    
+    @property (nonatomic, readonly, getter = isDragging) BOOL dragging;
+    
+Returns YES if user has started scrolling the SwipeView and has not yet released it.
+    
+    @property (nonatomic, readonly, getter = isDecelerating) BOOL decelerating;
+
+Returns YES if the user isn't dragging the SwipeView any more, but it is still moving.
 
 	
 Methods
