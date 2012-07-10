@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.0.1
+//  Version 1.1
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -40,7 +40,7 @@
 @property (nonatomic, strong) NSMutableDictionary *itemViews;
 @property (nonatomic, strong) NSMutableSet *itemViewPool;
 @property (nonatomic, assign) NSInteger previousItemIndex;
-@property (nonatomic, assign) float itemWidth;
+@property (nonatomic, assign) CGFloat itemWidth;
 
 - (UIView *)loadViewAtIndex:(NSInteger)index;
 
@@ -161,21 +161,30 @@
 
 - (void)setScrollEnabled:(BOOL)scrollEnabled
 {
-    _scrollEnabled = scrollEnabled;
-    _scrollView.scrollEnabled = _scrollEnabled;
+    if (_scrollEnabled != scrollEnabled)
+    {
+        _scrollEnabled = scrollEnabled;
+        _scrollView.scrollEnabled = _scrollEnabled;
+    }
 }
 
 - (void)setPagingEnabled:(BOOL)pagingEnabled
 {
-    _pagingEnabled = pagingEnabled;
-    _scrollView.pagingEnabled = pagingEnabled;
+    if (_pagingEnabled != pagingEnabled)
+    {
+        _pagingEnabled = pagingEnabled;
+        _scrollView.pagingEnabled = pagingEnabled;
+    }
 }
 
 - (void)setBounces:(BOOL)bounces
 {
-    _bounces = bounces;
-    _scrollView.alwaysBounceHorizontal = _bounces;
-    _scrollView.bounces = _bounces;
+    if (_bounces != bounces)
+    {
+        _bounces = bounces;
+        _scrollView.alwaysBounceHorizontal = _bounces;
+        _scrollView.bounces = _bounces;
+    }
 }
 
 
@@ -274,7 +283,11 @@
 
 - (void)updateItemWidth
 {
-    if (_numberOfItems > 0)
+    if ([_delegate respondsToSelector:@selector(swipeViewItemWidth:)])
+    {
+        _itemWidth = [_delegate swipeViewItemWidth:self];
+    }
+    else if (_numberOfItems > 0)
     {
         if ([_itemViews count] == 0)
         {
@@ -285,11 +298,62 @@
     }
 }
 
-- (void)setFrameForView:(UIView *)view atIndex:(NSInteger)index
+- (void)updateScrollViewDimensions
 {
-    view.center = CGPointMake(_itemWidth * (index + 0.5f), _scrollView.bounds.size.height/2.0f);
+    CGRect frame = _scrollView.frame;
+    CGSize contentSize = _scrollView.contentSize;
+    switch (_alignment)
+    {
+        case SwipeViewAlignmentCenter:
+        {
+            frame = CGRectMake((self.frame.size.width - _itemWidth)/2.0f, 0.0f, _itemWidth, self.frame.size.height);
+            contentSize = CGSizeMake(_itemWidth * _numberOfItems, _scrollView.frame.size.height);
+            break;
+        }
+        case SwipeViewAlignmentEdge:
+        {
+            frame = CGRectMake(0.0f, 0.0f, _itemWidth, self.frame.size.height);
+            contentSize = CGSizeMake(_itemWidth * _numberOfItems - (self.frame.size.width - _itemWidth), _scrollView.frame.size.height);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+    
+    if (!CGRectEqualToRect(_scrollView.frame, frame))
+    {
+        _scrollView.frame = frame;
+    }
+    if (!CGSizeEqualToSize(_scrollView.contentSize, contentSize))
+    {
+        _scrollView.contentSize = contentSize;
+    }
 }
 
+- (void)setFrameForView:(UIView *)view atIndex:(NSInteger)index
+{
+    view.center = CGPointMake((index + 0.5f) * _itemWidth, _scrollView.frame.size.height/2.0f);
+}
+
+- (void)layOutItemViews
+{
+    [self updateItemWidth];
+    for (UIView *view in self.visibleItemViews)
+    {
+        [self setFrameForView:view atIndex:[self indexOfItemView:view]];
+    }
+}
+
+- (void)layoutSubviews
+{
+    [self updateScrollViewDimensions];
+    [self layOutItemViews];
+    [UIView setAnimationsEnabled:NO];
+    [self loadUnloadViews];
+    [UIView setAnimationsEnabled:YES];
+}
 
 #pragma mark -
 #pragma mark View queing
@@ -310,6 +374,80 @@
         [_itemViewPool removeObject:view];
     }
     return [view autorelease];
+}
+
+
+#pragma mark -
+#pragma mark Scrolling
+
+- (NSInteger)clampedIndex:(NSInteger)index
+{
+    return MIN(MAX(index, 0), _numberOfItems - 1);
+}
+
+- (CGFloat)clampedOffset:(CGFloat)offset
+{
+    return fminf(fmaxf(0.0f, offset), (CGFloat)_numberOfItems - 1.0f);
+}
+
+- (CGFloat)scrollOffset
+{
+    return [self clampedOffset:_scrollView.contentOffset.x / _itemWidth];
+}
+
+- (NSInteger)currentItemIndex
+{   
+    return [self clampedIndex:roundf(self.scrollOffset)];
+}
+
+- (NSInteger)minScrollDistanceFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex
+{
+    return toIndex - fromIndex;
+}
+
+- (CGFloat)minScrollDistanceFromOffset:(CGFloat)fromOffset toOffset:(CGFloat)toOffset
+{
+    return toOffset - fromOffset;
+}
+
+- (void)setCurrentItemIndex:(NSInteger)currentItemIndex
+{
+    if (currentItemIndex != self.currentItemIndex)
+    {
+        [self scrollToItemAtIndex:currentItemIndex animated:NO];
+    }
+}
+
+- (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated
+{
+    CGFloat scrollOffset = [self clampedOffset:_scrollView.contentOffset.x / _itemWidth];
+    [_scrollView setContentOffset:CGPointMake(_itemWidth * (scrollOffset + itemCount), 0.0f) animated:animated];
+}
+
+- (void)scrollToItemAtIndex:(NSInteger)index animated:(BOOL)animated
+{
+	NSInteger itemCount = [self minScrollDistanceFromIndex:self.currentItemIndex toIndex:index];
+    [self scrollByNumberOfItems:itemCount animated:animated];
+}
+
+- (void)didScroll
+{
+    [self layOutItemViews];
+    [self loadUnloadViews];
+    
+	if ([_delegate respondsToSelector:@selector(swipeViewDidScroll:)])
+    {
+		[_delegate swipeViewDidScroll:self];
+	}
+    
+    if (_previousItemIndex != self.currentItemIndex)
+    {
+        _previousItemIndex = self.currentItemIndex;
+        if ([_delegate respondsToSelector:@selector(swipeViewCurrentItemIndexDidChange:)])
+        {
+            [_delegate swipeViewCurrentItemIndexDidChange:self];
+        }
+    }
 }
 
 
@@ -341,14 +479,15 @@
 - (void)loadUnloadViews
 {
     //calculate visible view indices
-    NSInteger count = MIN(_numberOfItems, _itemWidth? floorf(self.bounds.size.width / _itemWidth) + 2: 0);
-    NSMutableSet *visibleIndices = [NSMutableSet setWithCapacity:count];
+    NSInteger count = MIN(_numberOfItems, _itemWidth? floorf(self.bounds.size.width / _itemWidth) + 3: 0);
     NSInteger offset = self.currentItemIndex - 1;
     if (_alignment == SwipeViewAlignmentCenter)
     {
+        count --;
         offset -= count/2 - 1;
     }
     offset = MAX(0, MIN(_numberOfItems - count, offset));
+    NSMutableSet *visibleIndices = [NSMutableSet setWithCapacity:count];
     for (NSInteger i = 0; i < count; i++)
     {
         NSInteger index = i + offset;
@@ -409,25 +548,7 @@
     [self updateItemWidth];
     
     //update alignment
-    switch (_alignment)
-    {
-        case SwipeViewAlignmentCenter:
-        {
-            _scrollView.frame = CGRectMake((self.frame.size.width - _itemWidth)/2.0f, 0.0f, _itemWidth, self.frame.size.height);
-            _scrollView.contentSize = CGSizeMake(_itemWidth * _numberOfItems, _scrollView.frame.size.height);
-            break;
-        }
-        case SwipeViewAlignmentEdge:
-        {
-            _scrollView.frame = CGRectMake(0.0f, 0.0f, _itemWidth, self.frame.size.height);
-            _scrollView.contentSize = CGSizeMake(_itemWidth * _numberOfItems - (self.frame.size.width - _itemWidth), _scrollView.frame.size.height);
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
+    [self updateScrollViewDimensions];
     
     //prevent false index changed event
     _previousItemIndex = self.currentItemIndex;
@@ -438,29 +559,6 @@
     
     //layout views
     [self loadUnloadViews];
-}
-
-- (NSInteger)clampedPageIndex:(NSInteger)index
-{
-    return MAX(0, MIN(index, _numberOfItems - 1));
-}
-
-- (NSInteger)currentItemIndex
-{	
-	CGPoint offset = _scrollView.contentOffset;
-	NSInteger index = round(offset.x / (_itemWidth));
-	return [self clampedPageIndex:index];
-}
-
-- (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated;
-{
-    [self scrollToItemAtIndex:self.currentItemIndex + itemCount animated:animated];
-}
-
-- (void)scrollToItemAtIndex:(NSInteger)index animated:(BOOL)animated;
-{
-	index = [self clampedPageIndex:index];
-    [_scrollView setContentOffset:CGPointMake(_itemWidth * index, 0) animated:animated];
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
@@ -550,22 +648,17 @@
 #pragma mark -
 #pragma mark UIScrollViewDelegate methods
 
-- (void)scrollViewDidScroll:(UIScrollView *)_scrollView
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    [self loadUnloadViews];
-    
-	if ([_delegate respondsToSelector:@selector(swipeViewDidScroll:)])
+    //update view
+    [self didScroll];
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    if ([_delegate respondsToSelector:@selector(swipeViewWillBeginDragging:)])
     {
-		[_delegate swipeViewDidScroll:self];
-	}
-    
-    if (_previousItemIndex != self.currentItemIndex)
-    {
-        _previousItemIndex = self.currentItemIndex;
-        if ([_delegate respondsToSelector:@selector(swipeViewCurrentItemIndexDidChange:)])
-        {
-            [_delegate swipeViewCurrentItemIndexDidChange:self];
-        }
+        [_delegate swipeViewWillBeginDragging:self];
     }
 }
 
@@ -577,11 +670,27 @@
     }
 }
 
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
+{
+    if ([_delegate respondsToSelector:@selector(swipeViewWillBeginDecelerating:)])
+    {
+        [_delegate swipeViewWillBeginDecelerating:self];
+    }
+}
+
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     if ([_delegate respondsToSelector:@selector(swipeViewDidEndDecelerating:)])
     {
         [_delegate swipeViewDidEndDecelerating:self];
+    }
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
+{
+    if ([_delegate respondsToSelector:@selector(swipeViewDidEndScrollingAnimation:)])
+    {
+        [_delegate swipeViewDidEndScrollingAnimation:self];
     }
 }
 

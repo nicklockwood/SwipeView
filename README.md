@@ -50,6 +50,10 @@ An object that supports the SwipeViewDelegate protocol and can respond to SwipeV
     @property (nonatomic, readonly) NSInteger numberOfItems;
     
 The number of items in the SwipeView (read only). To set this, implement the `numberOfItemsInSwipeView:` dataSource method. Note that not all of these item views will be loaded or visible at a given point in time - the SwipeView loads item views on demand as it scrolls.
+
+    @property (nonatomic, readonly) CGFloat itemWidth;
+    
+The width of each item in the SwipeView. This property is read-only, but can be set using the `swipeViewItemWidth:` delegate method.
     
     @property (nonatomic, strong, readonly) NSArray *indexesForVisibleItems;
 	
@@ -137,6 +141,10 @@ Return a view to be displayed at the specified index in the SwipeView. The `reus
 
 The SwipeViewDelegate protocol has the following optional methods:
 
+    - (CGFloat)swipeViewItemWidth:(SwipeView *)swipeView;
+
+Returns the width in points/pixels of each item view. If this method is not implemented, the item width is automatically calculated from the first item view that is loaded.
+
     - (void)swipeViewDidScroll:(SwipeView *)swipeView;
     
 This method is called whenever the SwipeView is scrolled. It is called regardless of whether the SwipeView was scrolled programatically or through user interaction.
@@ -144,14 +152,26 @@ This method is called whenever the SwipeView is scrolled. It is called regardles
     - (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView;
     
 This method is called whenever the SwipeView scrolls far enough for the currentItemIndex property to change. It is called regardless of whether the item index was updated programatically or through user interaction.
+
+    - (void)swipeViewWillBeginDragging:(SwipeView *)swipeView;
+    
+This method is called when the SwipeView is about to start moving as the result of the user dragging it.
     
     - (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate;
     
 This method is called when the user stops dragging the SwipeView. The willDecelerate parameter indicates whether the SwipeView is travelling fast enough that it needs to decelerate before it stops (i.e. the current index is not necessarily the one it will stop at) or if it will stop where it is. Note that even if willDecelerate is NO, the SwipeView will still scroll automatically until it aligns exactly on the current index.
     
+    - (void)swipeViewWillBeginDecelerating:(SwipeView *)swipeView;
+    
+This method is called when the SwipeView is about to start decelerating after the user has finished dragging it.
+    
     - (void)swipeViewDidEndDecelerating:(SwipeView *)swipeView;
     
 This method is called when the SwipeView finishes decelerating and you can assume that the currentItemIndex at this point is the final stopping value.
+    
+    - (void)swipeViewDidEndScrollingAnimation:(SwipeView *)swipeView;
+
+This method is called when the SwipeView finishes moving after being scrolled programmatically using the `scrollByNumberOfItems:` or `scrollToItemAtIndex:` methods.
     
     - (void)swipeView:(SwipeView *)swipeView didSelectItemAtIndex:(NSInteger)index;
 

@@ -1,7 +1,7 @@
 //
 //  SwipeView.h
 //
-//  Version 1.0.1
+//  Version 1.1
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -91,9 +91,11 @@ SwipeViewAlignment;
 @property (nonatomic, weak) IBOutlet id<SwipeViewDataSource> dataSource;
 @property (nonatomic, weak) IBOutlet id<SwipeViewDelegate> delegate;
 @property (nonatomic, readonly) NSInteger numberOfItems;
+@property (nonatomic, readonly) CGFloat itemWidth;
 @property (nonatomic, strong, readonly) NSArray *indexesForVisibleItems;
 @property (nonatomic, strong, readonly) NSArray *visibleItemViews;
-@property (nonatomic, readonly) NSInteger currentItemIndex;
+@property (nonatomic, readonly) CGFloat scrollOffset;
+@property (nonatomic, assign) NSInteger currentItemIndex;
 @property (nonatomic, strong, readonly) UIView *currentItemView;
 @property (nonatomic, assign) SwipeViewAlignment alignment;
 @property (nonatomic, assign, getter = isPagingEnabled) BOOL pagingEnabled;
@@ -122,10 +124,14 @@ SwipeViewAlignment;
 @protocol SwipeViewDelegate <NSObject>
 @optional
 
+- (CGFloat)swipeViewItemWidth:(SwipeView *)swipeView;
 - (void)swipeViewDidScroll:(SwipeView *)swipeView;
 - (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView;
+- (void)swipeViewWillBeginDragging:(SwipeView *)swipeView;
 - (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate;
+- (void)swipeViewWillBeginDecelerating:(SwipeView *)swipeView;
 - (void)swipeViewDidEndDecelerating:(SwipeView *)swipeView;
+- (void)swipeViewDidEndScrollingAnimation:(SwipeView *)swipeView;
 - (BOOL)swipeView:(SwipeView *)swipeView shouldSelectItemAtIndex:(NSInteger)index;
 - (void)swipeView:(SwipeView *)swipeView didSelectItemAtIndex:(NSInteger)index;
 

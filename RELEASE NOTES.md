@@ -1,3 +1,8 @@
+Version 1.1
+
+- Fixed layout glitches when rotating or resizing view
+- Added additional delegate methods
+
 Version 1.0.1
 
 - Fixed bug in delegate setter method

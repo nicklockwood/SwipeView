@@ -28,7 +28,7 @@
     {
         //set up colors
         self.colors = [NSMutableArray array];
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < 10; i++)
         {
             [self.colors addObject:[UIColor colorWithRed:rand()/(float)RAND_MAX
                                                    green:rand()/(float)RAND_MAX
@@ -45,6 +45,8 @@
     
     //configure swipe view
     _swipeView.alignment = SwipeViewAlignmentEdge;
+    _swipeView.pagingEnabled = NO;
+    _swipeView.bounces = YES;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -59,14 +61,20 @@
 
 - (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view
 {
+    UILabel *label = (UILabel *)view;
+    
     //create or reuse view
     if (view == nil)
     {
-        view = [[[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 100.0f, 100.0f)] autorelease];
+        label = [[[UILabel alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 100.0f, 100.0f)] autorelease];
+        label.textAlignment = UITextAlignmentCenter;
+        label.textColor = [UIColor whiteColor];
+        view = label;
     }
     
     //configure view
-    view.backgroundColor = [self.colors objectAtIndex:index];
+    label.backgroundColor = [self.colors objectAtIndex:index];
+    label.text = [NSString stringWithFormat:@"%i", index];
     
     //return view
     return view;
