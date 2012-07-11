@@ -376,13 +376,13 @@
         _scrollOffset = [self clampedOffset:_scrollOffset];
     }
 }
-    
+
 - (void)updateScrollViewDimensions
 {
     [self updateItemWidth];
     
-    CGRect frame = _scrollView.frame;
-    CGSize contentSize = _scrollView.contentSize;
+    CGRect frame = self.bounds;
+    CGSize contentSize = frame.size;
     switch (_alignment)
     {
         case SwipeViewAlignmentCenter:
@@ -406,7 +406,7 @@
     
     if (_wrapEnabled)
     {
-        contentSize.width = 90000.0f;
+        contentSize.width = _itemWidth * _itemsPerPage * 30.0f;
     }
     else if (_pagingEnabled && !_truncateFinalPage)
     {
@@ -464,7 +464,7 @@
     }
 }
 
-- (void)layoutSubviewsAfterDelay
+- (void)updateLayout
 {
     [self updateScrollViewDimensions];
     [UIView setAnimationsEnabled:NO];
@@ -475,12 +475,8 @@
 
 - (void)layoutSubviews
 {
-    [self performSelectorOnMainThread:@selector(layoutSubviewsAfterDelay) withObject:nil waitUntilDone:NO];
-    [self updateScrollViewDimensions];
-    [UIView setAnimationsEnabled:NO];
-    [self loadUnloadViews];
-    [UIView setAnimationsEnabled:YES];
-    [self layOutItemViews];
+    [self updateLayout];
+    [self performSelectorOnMainThread:@selector(updateLayout) withObject:nil waitUntilDone:NO];
 }
 
 #pragma mark -
@@ -671,7 +667,7 @@
     [self setItemView:view forIndex:index];
     [self setFrameForView:view atIndex:index];
     [_scrollView addSubview:view];
-
+    
     return view;
 }
 
@@ -685,6 +681,10 @@
     {
         offset = MAX(0, MIN(_numberOfItems - numberOfVisibleItems, offset));
     }
+    
+    numberOfVisibleItems = _numberOfItems;
+    offset = 0;
+    
     for (NSInteger i = 0; i < numberOfVisibleItems; i++)
     {
         NSInteger index = [self clampedIndex:i + offset];
@@ -740,7 +740,7 @@
     
     //get number of items
     _numberOfItems = [_dataSource numberOfItemsInSwipeView:self];
-
+    
     //reset view pools
     self.itemViews = [NSMutableDictionary dictionary];
     self.itemViewPool = [NSMutableSet set];
