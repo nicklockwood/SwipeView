@@ -103,7 +103,7 @@ SwipeViewAlignment;
 @property (nonatomic, assign) SwipeViewAlignment alignment;
 @property (nonatomic, assign, getter = isPagingEnabled) BOOL pagingEnabled;
 @property (nonatomic, assign, getter = isScrollEnabled) BOOL scrollEnabled;
-@property (nonatomic, assign, getter = isScrollEnabled) BOOL wrapEnabled;
+@property (nonatomic, assign, getter = isWrapEnabled) BOOL wrapEnabled;
 @property (nonatomic, assign) BOOL bounces;
 @property (nonatomic, assign) float decelerationRate;
 @property (nonatomic, readonly, getter = isDragging) BOOL dragging;
