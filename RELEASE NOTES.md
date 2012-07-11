@@ -1,8 +1,10 @@
 Version 1.1
 
 - Added support for wrapping
+- It is now possible to display multiple items per page
 - Fixed layout glitches when rotating or resizing view
 - Added additional properties and delegate methods
+- Added page control to example application
 
 Version 1.0.1
 

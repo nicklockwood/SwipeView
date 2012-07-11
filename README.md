@@ -51,10 +51,22 @@ An object that supports the SwipeViewDelegate protocol and can respond to SwipeV
     
 The number of items in the SwipeView (read only). To set this, implement the `numberOfItemsInSwipeView:` dataSource method. Note that not all of these item views will be loaded or visible at a given point in time - the SwipeView loads item views on demand as it scrolls.
 
+    @property (nonatomic, readonly) NSInteger numberOfPages;
+
+The number of pages in the SwipeView (read only). To set this, implement the `numberOfItemsInSwipeView:` dataSource method and set the `itemsPerPage` value. If `itemsPerPage` = 1, numberOfPages will match the `numberOfItems`.
+
     @property (nonatomic, readonly) CGFloat itemWidth;
     
 The width of each item in the SwipeView. This property is read-only, but can be set using the `swipeViewItemWidth:` delegate method.
+
+    @property (nonatomic, assign) NSInteger itemsPerPage;
     
+The number of items per page when paging is enabled. Defaults to one;
+
+    @property (nonatomic, assign) BOOL truncateFinalPage;
+
+If the number of items is not exactly divisible by the itemsPerPage value then it can result in blank space on the last page. By setting truncateFinalPage to YES, you can eliminate that space.
+
     @property (nonatomic, strong, readonly) NSArray *indexesForVisibleItems;
 	
 An array containing the indexes of all item views currently loaded and visible in the SwipeView. The array contains NSNumber objects whose integer values match the indexes of the views. The indexes for item views start at zero and match the indexes passed to the dataSource to load the view.
@@ -62,14 +74,18 @@ An array containing the indexes of all item views currently loaded and visible i
 	@property (nonatomic, strong, readonly) NSArray *visibleItemViews;
 
 An array of all the item views currently displayed in the SwipeView (read only). The indexes of views in this array do not match the item indexes, however the order of these views matches the order of the visibleItemIndexes array property, i.e. you can get the item index of a given view in this array by retrieving the equivalent object from the visibleItemIndexes array (or, you can just use the `indexOfItemView:` method, which is much easier).
-    
-    @property (nonatomic, readonly) NSInteger currentItemIndex;
-    
-The index of the currently centered (or left-aligned, depending on the alignment value) item view.
 
     @property (nonatomic, strong, readonly) UIView *currentItemView;
     
-The currently centered (or left-aligned, depending on the alignment value) item view.
+The first item view of the currently centered (or left-aligned, depending on the alignment value) page.
+    
+    @property (nonatomic, readonly) NSInteger currentItemIndex;
+    
+The index of the first item of the currently centered (or left-aligned, depending on the alignment value) page.
+
+    @property (nonatomic, assign) NSInteger currentPage;
+
+The index of the currently centered (or left-aligned, depending on the alignment value) page. If `itemsPerPage` is equal to one, this value will match the currentItemIndex value.
 
     @property (nonatomic, assign) SwipeViewAlignment alignment;
     
@@ -117,13 +133,17 @@ This reloads all SwipeView item views from the dataSource and refreshes the disp
 	
 This method will reload the specified item view. The new item will be requested from the dataSource.
 
+	- (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated;
+
+This method allows you to scroll the SwipeView by a fixed distance, measured in item widths. Positive or negative values may be specified for itemCount, depending on the direction you wish to scroll. SwipeView gracefully handles bounds issues, so if you specify a distance greater than the number of items in the SwipeView, scrolling will be clamped when it reaches the end of the SwipeView.
+
 	- (void)scrollToItemAtIndex:(NSInteger)index animated:(BOOL)animated;
 
 This will center the SwipeView on the specified item, either immediately or with a smooth animation.
 
-	- (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated;
+	- (void)scrollToPage:(NSInteger)page animated:(BOOL)animated;
 
-This method allows you to scroll the SwipeView by a fixed distance, measured in item widths. Positive or negative values may be specified for itemCount, depending on the direction you wish to scroll. SwipeView gracefully handles bounds issues, so if you specify a distance greater than the number of items in the SwipeView, scrolling will be clamped when it reaches the end of the SwipeView.
+This will center the SwipeView on the specified item, either immediately or with a smooth animation.
 
 	- (UIView *)itemViewAtIndex:(NSInteger)index;
 	

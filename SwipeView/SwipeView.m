@@ -52,6 +52,8 @@
 @implementation SwipeView
 
 @synthesize itemWidth = _itemWidth;
+@synthesize itemsPerPage = _itemsPerPage;
+@synthesize truncateFinalPage = _truncateFinalPage;
 @synthesize alignment = _alignment;
 @synthesize previousItemIndex = _previousItemIndex;
 @synthesize previousContentOffset = _previousContentOffset;
@@ -78,6 +80,8 @@
     _pagingEnabled = YES;
     _bounces = YES;
     _wrapEnabled = NO;
+    _itemsPerPage = 1;
+    _truncateFinalPage = NO;
     
     _scrollView = [[UIScrollView alloc] init];
 	_scrollView.delegate = self;
@@ -153,10 +157,7 @@
     if (_delegate != delegate)
     {
         _delegate = delegate;
-		if (_delegate && _dataSource)
-		{
-			[self reloadData];
-		}
+		[self setNeedsLayout];
     }
 }
 
@@ -165,10 +166,25 @@
     if (_alignment != alignment)
     {
         _alignment = alignment;
-        if (_dataSource)
-		{
-			[self reloadData];
-		}
+        [self setNeedsLayout];
+    }
+}
+
+- (void)setItemsPerPage:(NSInteger)itemsPerPage
+{
+    if (_itemsPerPage != itemsPerPage)
+    {
+        _itemsPerPage = itemsPerPage;
+        [self setNeedsLayout];
+    }
+}
+
+- (void)setTruncateFinalPage:(BOOL)truncateFinalPage
+{
+    if (_truncateFinalPage != truncateFinalPage)
+    {
+        _truncateFinalPage = truncateFinalPage;
+        [self setNeedsLayout];
     }
 }
 
@@ -187,6 +203,7 @@
     {
         _pagingEnabled = pagingEnabled;
         _scrollView.pagingEnabled = pagingEnabled;
+        [self setNeedsLayout];
     }
 }
 
@@ -325,6 +342,7 @@
 
 - (void)updateItemWidth
 {
+    //item width
     if ([_delegate respondsToSelector:@selector(swipeViewItemWidth:)])
     {
         _itemWidth = [_delegate swipeViewItemWidth:self];
@@ -369,14 +387,15 @@
     {
         case SwipeViewAlignmentCenter:
         {
-            frame = CGRectMake((self.frame.size.width - _itemWidth)/2.0f, 0.0f, _itemWidth, self.frame.size.height);
-            contentSize = CGSizeMake(_itemWidth * _numberOfItems, _scrollView.bounds.size.height);
+            frame = CGRectMake((self.frame.size.width - _itemWidth * _itemsPerPage)/2.0f,
+                               0.0f, _itemWidth * _itemsPerPage, self.frame.size.height);
+            contentSize.width = _itemWidth * _numberOfItems;
             break;
         }
         case SwipeViewAlignmentEdge:
         {
-            frame = CGRectMake(0.0f, 0.0f, _itemWidth, self.frame.size.height);
-            contentSize = CGSizeMake(_itemWidth * _numberOfItems - (self.frame.size.width - _itemWidth), _scrollView.bounds.size.height);
+            frame = CGRectMake(0.0f, 0.0f, _itemWidth * _itemsPerPage, self.frame.size.height);
+            contentSize.width = _itemWidth * _numberOfItems - (self.frame.size.width - frame.size.width);
             break;
         }
         default:
@@ -387,7 +406,11 @@
     
     if (_wrapEnabled)
     {
-        contentSize = CGSizeMake(90000.0f, _scrollView.frame.size.height);
+        contentSize.width = 90000.0f;
+    }
+    else if (_pagingEnabled && !_truncateFinalPage)
+    {
+        contentSize.width = ceilf(contentSize.width / frame.size.width) * frame.size.width;
     }
     
     if (!CGRectEqualToRect(_scrollView.frame, frame))
@@ -523,6 +546,21 @@
     return [self clampedIndex:roundf(self.scrollOffset)];
 }
 
+- (NSInteger)currentPage
+{
+    if (_itemsPerPage > 1 && _truncateFinalPage && !_wrapEnabled &&
+        _scrollView.contentOffset.x >= _scrollView.contentSize.width - _scrollView.frame.size.width - _itemWidth * 0.5f)
+    {
+        return self.numberOfPages - 1;
+    }
+    return roundf((float)self.currentItemIndex / (float)_itemsPerPage);
+}
+
+- (NSInteger)numberOfPages
+{
+    return ceilf((float)_numberOfItems / (float)_itemsPerPage);
+}
+
 - (NSInteger)minScrollDistanceFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex
 {
     NSInteger directDistance = toIndex - fromIndex;
@@ -561,6 +599,14 @@
     }
 }
 
+- (void)setCurrentPage:(NSInteger)currentPage
+{
+    if (currentPage * _itemsPerPage != self.currentItemIndex)
+    {
+        [self scrollToPage:currentPage animated:NO];
+    }
+}
+
 - (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated
 {
     CGFloat scrollOffset = [self clampedOffset:_scrollView.contentOffset.x / _itemWidth];
@@ -571,6 +617,16 @@
 {
 	NSInteger itemCount = [self minScrollDistanceFromIndex:self.currentItemIndex toIndex:index];
     [self scrollByNumberOfItems:itemCount animated:animated];
+}
+
+- (void)scrollToPage:(NSInteger)page animated:(BOOL)animated
+{
+    NSInteger index = page * _itemsPerPage;
+    if (_truncateFinalPage)
+    {
+        index = MIN(index, _numberOfItems - _itemsPerPage);
+    }
+    [self scrollToItemAtIndex:index animated:animated];
 }
 
 - (void)didScroll
@@ -624,7 +680,7 @@
     //calculate visible view indices
     NSInteger numberOfVisibleItems = ceilf(self.bounds.size.width / _itemWidth) + 2;
     NSMutableSet *visibleIndices = [NSMutableSet setWithCapacity:numberOfVisibleItems];
-    NSInteger offset = self.currentItemIndex - ((_alignment == SwipeViewAlignmentCenter)? (numberOfVisibleItems/2): 1);
+    NSInteger offset = self.currentItemIndex - ceilf(_scrollView.frame.origin.x / _itemWidth) - 1;
     if (!_wrapEnabled)
     {
         offset = MAX(0, MIN(_numberOfItems - numberOfVisibleItems, offset));

@@ -19,6 +19,7 @@
 @implementation ViewController
 
 @synthesize swipeView = _swipeView;
+@synthesize pageControl = _pageControl;
 @synthesize colors = _colors;
 
 
@@ -45,8 +46,14 @@
     
     //configure swipe view
     _swipeView.alignment = SwipeViewAlignmentCenter;
-    _swipeView.pagingEnabled = NO;
-    _swipeView.wrapEnabled = YES;
+    _swipeView.pagingEnabled = YES;
+    _swipeView.wrapEnabled = NO;
+    _swipeView.itemsPerPage = 3;
+    _swipeView.truncateFinalPage = YES;
+    
+    //configure page control
+    _pageControl.numberOfPages = _swipeView.numberOfPages;
+    _pageControl.defersCurrentPageDisplay = YES;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -78,6 +85,18 @@
     
     //return view
     return view;
+}
+
+- (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView
+{
+    //update page control page
+    _pageControl.currentPage = swipeView.currentPage;
+}
+
+- (IBAction)pageControlTapped
+{
+    //update swipe view page
+    [_swipeView scrollToPage:_pageControl.currentPage animated:YES];
 }
 
 - (void)dealloc

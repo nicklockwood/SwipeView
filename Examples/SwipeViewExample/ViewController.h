@@ -13,5 +13,8 @@
 @interface ViewController : UIViewController <SwipeViewDelegate, SwipeViewDataSource>
 
 @property (nonatomic, strong) IBOutlet SwipeView *swipeView;
+@property (nonatomic, strong) IBOutlet UIPageControl *pageControl;
+
+- (IBAction)pageControlTapped;
 
 @end
