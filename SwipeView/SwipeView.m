@@ -605,7 +605,7 @@
 
 - (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated
 {
-    CGFloat scrollOffset = [self clampedOffset:_scrollView.contentOffset.x / _itemWidth];
+    CGFloat scrollOffset = _scrollView.contentOffset.x / _itemWidth;
     [_scrollView setContentOffset:CGPointMake(_itemWidth * (scrollOffset + itemCount), 0.0f) animated:animated];
 }
 
