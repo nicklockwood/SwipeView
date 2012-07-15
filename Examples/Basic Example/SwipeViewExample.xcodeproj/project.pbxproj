@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		01D4C7E11597DC9500366937 /* SwipeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D4C7E01597DC9500366937 /* SwipeView.m */; };
+		019466DC15B3129800B9CA30 /* SwipeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 019466DB15B3129800B9CA30 /* SwipeView.m */; };
 		01FA7D26145B5FCC00D118DB /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FA7D25145B5FCC00D118DB /* UIKit.framework */; };
 		01FA7D28145B5FCC00D118DB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FA7D27145B5FCC00D118DB /* Foundation.framework */; };
 		01FA7D2A145B5FCC00D118DB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FA7D29145B5FCC00D118DB /* CoreGraphics.framework */; };
@@ -19,8 +19,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		01D4C7DF1597DC9500366937 /* SwipeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwipeView.h; sourceTree = "<group>"; };
-		01D4C7E01597DC9500366937 /* SwipeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SwipeView.m; sourceTree = "<group>"; };
+		019466DA15B3129800B9CA30 /* SwipeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwipeView.h; sourceTree = "<group>"; };
+		019466DB15B3129800B9CA30 /* SwipeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SwipeView.m; sourceTree = "<group>"; };
 		01FA7D21145B5FCC00D118DB /* SwipeViewExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwipeViewExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		01FA7D25145B5FCC00D118DB /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		01FA7D27145B5FCC00D118DB /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -50,20 +50,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		01D4C7DE1597DC9500366937 /* SwipeView */ = {
+		019466D915B3129800B9CA30 /* SwipeView */ = {
 			isa = PBXGroup;
 			children = (
-				01D4C7DF1597DC9500366937 /* SwipeView.h */,
-				01D4C7E01597DC9500366937 /* SwipeView.m */,
+				019466DA15B3129800B9CA30 /* SwipeView.h */,
+				019466DB15B3129800B9CA30 /* SwipeView.m */,
 			);
 			name = SwipeView;
-			path = ../SwipeView;
+			path = ../../SwipeView;
 			sourceTree = "<group>";
 		};
 		01FA7D16145B5FCB00D118DB = {
 			isa = PBXGroup;
 			children = (
-				01D4C7DE1597DC9500366937 /* SwipeView */,
+				019466D915B3129800B9CA30 /* SwipeView */,
 				01FA7D2B145B5FCC00D118DB /* SwipeViewExample */,
 				01FA7D24145B5FCC00D118DB /* Frameworks */,
 				01FA7D22145B5FCC00D118DB /* Products */,
@@ -177,7 +177,7 @@
 				01FA7D32145B5FCC00D118DB /* main.m in Sources */,
 				01FA7D36145B5FCC00D118DB /* AppDelegate.m in Sources */,
 				01FA7D39145B5FCC00D118DB /* ViewController.m in Sources */,
-				01D4C7E11597DC9500366937 /* SwipeView.m in Sources */,
+				019466DC15B3129800B9CA30 /* SwipeView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

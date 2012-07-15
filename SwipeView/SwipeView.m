@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.1
+//  Version 1.1.1
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -110,8 +110,6 @@
     self.clipsToBounds = YES;
     
     [self addSubview:_scrollView];
-    
-    [self reloadData];
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder
@@ -605,6 +603,7 @@
 
 - (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated
 {
+    [self updateScrollViewDimensions];
     CGFloat scrollOffset = _scrollView.contentOffset.x / _itemWidth;
     [_scrollView setContentOffset:CGPointMake(_itemWidth * (scrollOffset + itemCount), 0.0f) animated:animated];
 }
@@ -681,9 +680,6 @@
     {
         offset = MAX(0, MIN(_numberOfItems - numberOfVisibleItems, offset));
     }
-    
-    numberOfVisibleItems = _numberOfItems;
-    offset = 0;
     
     for (NSInteger i = 0; i < numberOfVisibleItems; i++)
     {
@@ -763,7 +759,7 @@
 {
     if (self.superview)
 	{
-		[self reloadData];
+		[self setNeedsLayout];
 	}
 }
 

@@ -81,11 +81,11 @@ The first item view of the currently centered (or left-aligned, depending on the
     
     @property (nonatomic, readonly) NSInteger currentItemIndex;
     
-The index of the first item of the currently centered (or left-aligned, depending on the alignment value) page.
+The index of the first item of the currently centered (or left-aligned, depending on the alignment value) page. Setting this value is value is equivalent to calling `scrollToItemAtIndex:animated:` with the animated argument set to NO.
 
     @property (nonatomic, assign) NSInteger currentPage;
 
-The index of the currently centered (or left-aligned, depending on the alignment value) page. If `itemsPerPage` is equal to one, this value will match the currentItemIndex value.
+The index of the currently centered (or left-aligned, depending on the alignment value) page. If `itemsPerPage` is equal to one, this value will match the currentItemIndex value. Setting this value is value is equivalent to calling `scrollToPage:animated:` with the animated argument set to NO.
 
     @property (nonatomic, assign) SwipeViewAlignment alignment;
     

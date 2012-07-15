@@ -1,3 +1,10 @@
+Version 1.1.1
+
+- Removed some leftover debug code that had broken the view recycling logic
+- Fixed bug where scrolling SwipeView programmatically immediately after loading
+would cause a crash
+- Added ARC Test example
+
 Version 1.1
 
 - Added support for wrapping
