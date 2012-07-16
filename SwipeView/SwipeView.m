@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.1.1
+//  Version 1.1.2
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -43,8 +43,6 @@
 @property (nonatomic, assign) CGPoint previousContentOffset;
 @property (nonatomic, assign) CGFloat scrollOffset;
 @property (nonatomic, assign) CGFloat itemWidth;
-
-- (UIView *)loadViewAtIndex:(NSInteger)index;
 
 @end
 
@@ -365,11 +363,13 @@
         {
             _previousContentOffset.x += scrollWidth;
             _scrollView.contentOffset = CGPointMake(_scrollView.contentOffset.x + scrollWidth, 0.0f);
+            _scrollOffset += scrollWidth / _itemWidth;
         }
         else if (_scrollView.contentOffset.x >= scrollWidth * 2.0f)
         {
             _previousContentOffset.x -= scrollWidth;
             _scrollView.contentOffset = CGPointMake(_scrollView.contentOffset.x - scrollWidth, 0.0f);
+            _scrollOffset -= scrollWidth / _itemWidth;
         }
         _scrollOffset = [self clampedOffset:_scrollOffset];
     }
@@ -404,7 +404,7 @@
     
     if (_wrapEnabled)
     {
-        contentSize.width = _itemWidth * _itemsPerPage * 30.0f;
+        contentSize.width = _itemWidth * _numberOfItems * 3.0f;
     }
     else if (_pagingEnabled && !_truncateFinalPage)
     {
@@ -740,6 +740,9 @@
     //reset view pools
     self.itemViews = [NSMutableDictionary dictionary];
     self.itemViewPool = [NSMutableSet set];
+    
+    //reset scroll offset
+    _scrollOffset = 0.0f;
     
     //layout views
     [self setNeedsLayout];

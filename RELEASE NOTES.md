@@ -1,3 +1,8 @@
+Version 1.1.2
+
+- Fixed wrapping issue with carousel for certain item counts
+- Calling reloadData on carousel now resets currentItemIndex to zero
+
 Version 1.1.1
 
 - Removed some leftover debug code that had broken the view recycling logic
