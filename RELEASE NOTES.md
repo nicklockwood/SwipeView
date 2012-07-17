@@ -1,3 +1,8 @@
+Version 1.1.3
+
+- Fixed reloading bug on wrapped SwipeViews
+- Added test projects folder
+
 Version 1.1.2
 
 - Fixed wrapping issue with carousel for certain item counts

@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.1.2
+//  Version 1.1.3
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -43,6 +43,7 @@
 @property (nonatomic, assign) CGPoint previousContentOffset;
 @property (nonatomic, assign) CGFloat scrollOffset;
 @property (nonatomic, assign) CGFloat itemWidth;
+@property (nonatomic, assign) BOOL suppressScrollEvent;
 
 @end
 
@@ -67,6 +68,7 @@
 @synthesize bounces = _bounces;
 @synthesize wrapEnabled = _wrapEnabled;
 @synthesize decelerationRate = _decelerationRate;
+@synthesize suppressScrollEvent = _suppressScrollEvent;
 
 
 #pragma mark -
@@ -107,7 +109,8 @@
     
     self.clipsToBounds = YES;
     
-    [self addSubview:_scrollView];
+    //place scrollview at bottom of hierarchy
+    [self insertSubview:_scrollView atIndex:0];
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder
@@ -292,46 +295,6 @@
     [(NSMutableDictionary *)_itemViews setObject:view forKey:[NSNumber numberWithInteger:index]];
 }
 
-- (void)removeViewAtIndex:(NSInteger)index
-{
-    NSMutableDictionary *newItemViews = [NSMutableDictionary dictionaryWithCapacity:[_itemViews count] - 1];
-    for (NSNumber *number in [self indexesForVisibleItems])
-    {
-        NSInteger i = [number integerValue];
-        if (i < index)
-        {
-            [newItemViews setObject:[_itemViews objectForKey:number] forKey:number];
-        }
-        else if (i > index)
-        {
-            [newItemViews setObject:[_itemViews objectForKey:number] forKey:[NSNumber numberWithInteger:i - 1]];
-        }
-    }
-    self.itemViews = newItemViews;
-}
-
-- (void)insertView:(UIView *)view atIndex:(NSInteger)index
-{
-    NSMutableDictionary *newItemViews = [NSMutableDictionary dictionaryWithCapacity:[_itemViews count] + 1];
-    for (NSNumber *number in [self indexesForVisibleItems])
-    {
-        NSInteger i = [number integerValue];
-        if (i < index)
-        {
-            [newItemViews setObject:[_itemViews objectForKey:number] forKey:number];
-        }
-        else
-        {
-            [newItemViews setObject:[_itemViews objectForKey:number] forKey:[NSNumber numberWithInteger:i + 1]];
-        }
-    }
-    if (view)
-    {
-        [self setItemView:view forIndex:index];
-    }
-    self.itemViews = newItemViews;
-}
-
 
 #pragma mark -
 #pragma mark View layout
@@ -353,7 +316,6 @@
         _itemWidth = itemView.bounds.size.width;
     }
 }
-
 - (void)updateScrollOffset
 {
     if (_wrapEnabled)
@@ -362,14 +324,12 @@
         if (_scrollView.contentOffset.x < scrollWidth)
         {
             _previousContentOffset.x += scrollWidth;
-            _scrollView.contentOffset = CGPointMake(_scrollView.contentOffset.x + scrollWidth, 0.0f);
-            _scrollOffset += scrollWidth / _itemWidth;
+            [self setContentOffsetWithoutEvent:CGPointMake(_scrollView.contentOffset.x + scrollWidth, 0.0f)];
         }
         else if (_scrollView.contentOffset.x >= scrollWidth * 2.0f)
         {
             _previousContentOffset.x -= scrollWidth;
-            _scrollView.contentOffset = CGPointMake(_scrollView.contentOffset.x - scrollWidth, 0.0f);
-            _scrollOffset -= scrollWidth / _itemWidth;
+            [self setContentOffsetWithoutEvent:CGPointMake(_scrollView.contentOffset.x - scrollWidth, 0.0f)];
         }
         _scrollOffset = [self clampedOffset:_scrollOffset];
     }
@@ -454,8 +414,6 @@
 
 - (void)layOutItemViews
 {
-    [self updateItemWidth];
-    
     for (UIView *view in self.visibleItemViews)
     {
         [self setFrameForView:view atIndex:[self indexOfItemView:view]];
@@ -528,6 +486,13 @@
     {
         return fminf(fmaxf(0.0f, offset), (CGFloat)_numberOfItems - 1.0f);
     }
+}
+
+- (void)setContentOffsetWithoutEvent:(CGPoint)contentOffset
+{
+    _suppressScrollEvent = YES;
+    _scrollView.contentOffset = contentOffset;
+    _suppressScrollEvent = NO;
 }
 
 - (CGFloat)scrollOffset
@@ -604,7 +569,7 @@
 - (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated
 {
     [self updateScrollViewDimensions];
-    CGFloat scrollOffset = _scrollView.contentOffset.x / _itemWidth;
+    CGFloat scrollOffset = _itemWidth? _scrollView.contentOffset.x / _itemWidth: 0.0f;
     [_scrollView setContentOffset:CGPointMake(_itemWidth * (scrollOffset + itemCount), 0.0f) animated:animated];
 }
 
@@ -622,26 +587,6 @@
         index = MIN(index, _numberOfItems - _itemsPerPage);
     }
     [self scrollToItemAtIndex:index animated:animated];
-}
-
-- (void)didScroll
-{
-    [self layOutItemViews];
-    [self loadUnloadViews];
-    
-	if ([_delegate respondsToSelector:@selector(swipeViewDidScroll:)])
-    {
-		[_delegate swipeViewDidScroll:self];
-	}
-    
-    if (_previousItemIndex != self.currentItemIndex)
-    {
-        _previousItemIndex = self.currentItemIndex;
-        if ([_delegate respondsToSelector:@selector(swipeViewCurrentItemIndexDidChange:)])
-        {
-            [_delegate swipeViewCurrentItemIndexDidChange:self];
-        }
-    }
 }
 
 
@@ -722,16 +667,16 @@
 
 - (void)reloadData
 {    
+    //reset properties
+    [self setContentOffsetWithoutEvent:CGPointZero];
+    _scrollView.contentSize = CGSizeZero;
+    _scrollOffset = 0.0f;
+    _itemWidth = 0.0f;
+    
     //remove old views
     for (UIView *view in self.visibleItemViews)
     {
         [view removeFromSuperview];
-    }
-    
-    //bail out if not set up yet
-    if (!_dataSource || !_scrollView)
-    {
-        return;
     }
     
     //get number of items
@@ -740,9 +685,6 @@
     //reset view pools
     self.itemViews = [NSMutableDictionary dictionary];
     self.itemViewPool = [NSMutableSet set];
-    
-    //reset scroll offset
-    _scrollOffset = 0.0f;
     
     //layout views
     [self setNeedsLayout];
@@ -837,16 +779,38 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    //update scrollOffset
-    CGFloat delta = _scrollView.contentOffset.x - _previousContentOffset.x;
-    _previousContentOffset = _scrollView.contentOffset;
-    _scrollOffset += delta / _itemWidth;
-    
-    //handle wrap
-    [self updateScrollOffset];
-    
-    //update view
-    [self didScroll];
+    if (!_suppressScrollEvent)
+    {
+        //update scrollOffset
+        CGFloat delta = _scrollView.contentOffset.x - _previousContentOffset.x;
+        _previousContentOffset = _scrollView.contentOffset;
+        _scrollOffset += delta / _itemWidth;
+        
+        //handle wrap
+        [self updateScrollOffset];
+        
+        //update view
+        [self layOutItemViews];
+        [self loadUnloadViews];
+        
+        //send delegate events
+        if ([_delegate respondsToSelector:@selector(swipeViewDidScroll:)])
+        {
+            [_delegate swipeViewDidScroll:self];
+        }
+        if (_previousItemIndex != self.currentItemIndex)
+        {
+            _previousItemIndex = self.currentItemIndex;
+            if ([_delegate respondsToSelector:@selector(swipeViewCurrentItemIndexDidChange:)])
+            {
+                [_delegate swipeViewCurrentItemIndexDidChange:self];
+            }
+        }
+    }
+    else
+    {
+        _previousContentOffset = _scrollView.contentOffset;
+    }
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
