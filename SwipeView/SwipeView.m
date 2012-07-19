@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.1.3
+//  Version 1.1.4
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -408,8 +408,10 @@
 
 - (void)setFrameForView:(UIView *)view atIndex:(NSInteger)index
 {
+    [UIView setAnimationsEnabled:NO];
     view.center = CGPointMake(([self offsetForItemAtIndex:index] + 0.5f) * _itemWidth + _scrollView.contentOffset.x,
                               _scrollView.frame.size.height/2.0f);
+    [UIView setAnimationsEnabled:YES];
 }
 
 - (void)layOutItemViews
@@ -490,9 +492,11 @@
 
 - (void)setContentOffsetWithoutEvent:(CGPoint)contentOffset
 {
+    [UIView setAnimationsEnabled:NO];
     _suppressScrollEvent = YES;
     _scrollView.contentOffset = contentOffset;
     _suppressScrollEvent = NO;
+    [UIView setAnimationsEnabled:YES];
 }
 
 - (CGFloat)scrollOffset
@@ -554,7 +558,7 @@
 {
     if (currentItemIndex != self.currentItemIndex)
     {
-        [self scrollToItemAtIndex:currentItemIndex animated:NO];
+        [self scrollToItemAtIndex:currentItemIndex duration:0.0];
     }
 }
 
@@ -562,31 +566,49 @@
 {
     if (currentPage * _itemsPerPage != self.currentItemIndex)
     {
-        [self scrollToPage:currentPage animated:NO];
+        [self scrollToPage:currentPage duration:0.0];
     }
 }
 
-- (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated
+- (void)scrollByNumberOfItems:(NSInteger)itemCount duration:(NSTimeInterval)duration
 {
     [self updateScrollViewDimensions];
     CGFloat scrollOffset = _itemWidth? _scrollView.contentOffset.x / _itemWidth: 0.0f;
-    [_scrollView setContentOffset:CGPointMake(_itemWidth * (scrollOffset + itemCount), 0.0f) animated:animated];
+    CGPoint contentOffset = CGPointMake(_itemWidth * (scrollOffset + itemCount), 0.0f);
+    
+    if (!_scrolling)
+    {
+        if (duration)
+        {
+            _scrolling = YES;
+            [UIView animateWithDuration:duration delay:0.0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
+                _scrollView.contentOffset = contentOffset;
+            } completion:^(BOOL finished) {
+                _scrolling = NO;
+                [self updateScrollOffset];
+                [self layOutItemViews];
+                [self loadUnloadViews];
+            }];
+            return;
+        }
+    }
+    _scrollView.contentOffset = contentOffset;
 }
 
-- (void)scrollToItemAtIndex:(NSInteger)index animated:(BOOL)animated
+- (void)scrollToItemAtIndex:(NSInteger)index duration:(NSTimeInterval)duration
 {
 	NSInteger itemCount = [self minScrollDistanceFromIndex:self.currentItemIndex toIndex:index];
-    [self scrollByNumberOfItems:itemCount animated:animated];
+    [self scrollByNumberOfItems:itemCount duration:duration];
 }
 
-- (void)scrollToPage:(NSInteger)page animated:(BOOL)animated
+- (void)scrollToPage:(NSInteger)page duration:(NSTimeInterval)duration
 {
     NSInteger index = page * _itemsPerPage;
     if (_truncateFinalPage)
     {
         index = MIN(index, _numberOfItems - _itemsPerPage);
     }
-    [self scrollToItemAtIndex:index animated:animated];
+    [self scrollToItemAtIndex:index duration:duration];
 }
 
 
@@ -787,7 +809,7 @@
         _scrollOffset += delta / _itemWidth;
         
         //handle wrap
-        [self updateScrollOffset];
+        if (!_scrolling) [self updateScrollOffset];
         
         //update view
         [self layOutItemViews];

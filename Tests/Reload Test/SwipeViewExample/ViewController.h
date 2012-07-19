@@ -15,5 +15,7 @@
 @property (nonatomic, strong) IBOutlet SwipeView *swipeView;
 
 - (IBAction)reload;
+- (IBAction)forwards;
+- (IBAction)backwards;
 
 @end

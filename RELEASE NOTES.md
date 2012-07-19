@@ -1,3 +1,7 @@
+Version 1.1.4
+
+- Scrolling methods now let you specify the duration of the scroll
+
 Version 1.1.3
 
 - Fixed reloading bug on wrapped SwipeViews

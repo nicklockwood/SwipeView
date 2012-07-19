@@ -81,11 +81,11 @@ The first item view of the currently centered (or left-aligned, depending on the
     
     @property (nonatomic, readonly) NSInteger currentItemIndex;
     
-The index of the first item of the currently centered (or left-aligned, depending on the alignment value) page. Setting this value is value is equivalent to calling `scrollToItemAtIndex:animated:` with the animated argument set to NO.
+The index of the first item of the currently centered (or left-aligned, depending on the alignment value) page. Setting this value is value is equivalent to calling `scrollToItemAtIndex:duration:` with the duration argument set to 0.0.
 
     @property (nonatomic, assign) NSInteger currentPage;
 
-The index of the currently centered (or left-aligned, depending on the alignment value) page. If `itemsPerPage` is equal to one, this value will match the currentItemIndex value. Setting this value is value is equivalent to calling `scrollToPage:animated:` with the animated argument set to NO.
+The index of the currently centered (or left-aligned, depending on the alignment value) page. If `itemsPerPage` is equal to one, this value will match the currentItemIndex value. Setting this value is value is equivalent to calling `scrollToPage:duration:` with the duration argument set to 0.0.
 
     @property (nonatomic, assign) SwipeViewAlignment alignment;
     
@@ -119,6 +119,10 @@ Returns YES if user has started scrolling the SwipeView and has not yet released
 
 Returns YES if the user isn't dragging the SwipeView any more, but it is still moving.
 
+    @property (nonatomic, readonly, getter = isScrolling) BOOL scrolling;
+
+Returns YES if the SwipeView is currently being scrolled programatically.
+
 	
 Methods
 --------------
@@ -133,15 +137,15 @@ This reloads all SwipeView item views from the dataSource and refreshes the disp
 	
 This method will reload the specified item view. The new item will be requested from the dataSource. Off-screen views will not be reloaded.
 
-	- (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated;
+	- (void)scrollByNumberOfItems:(NSInteger)itemCount duration:(NSTimeInterval)duration;
 
 This method allows you to scroll the SwipeView by a fixed distance, measured in item widths. Positive or negative values may be specified for itemCount, depending on the direction you wish to scroll. SwipeView gracefully handles bounds issues, so if you specify a distance greater than the number of items in the SwipeView, scrolling will be clamped when it reaches the end of the SwipeView.
 
-	- (void)scrollToItemAtIndex:(NSInteger)index animated:(BOOL)animated;
+	- (void)scrollToItemAtIndex:(NSInteger)index duration:(NSTimeInterval)duration;
 
 This will center the SwipeView on the specified item, either immediately or with a smooth animation.
 
-	- (void)scrollToPage:(NSInteger)page animated:(BOOL)animated;
+	- (void)scrollToPage:(NSInteger)page duration:(NSTimeInterval)duration;
 
 This will center the SwipeView on the specified item, either immediately or with a smooth animation.
 

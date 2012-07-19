@@ -1,7 +1,7 @@
 //
 //  SwipeView.h
 //
-//  Version 1.1.3
+//  Version 1.1.4
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -108,12 +108,13 @@ SwipeViewAlignment;
 @property (nonatomic, assign) float decelerationRate;
 @property (nonatomic, readonly, getter = isDragging) BOOL dragging;
 @property (nonatomic, readonly, getter = isDecelerating) BOOL decelerating;
+@property (nonatomic, readonly, getter = isScrolling) BOOL scrolling;
 
 - (void)reloadData;
 - (void)reloadItemAtIndex:(NSInteger)index;
-- (void)scrollByNumberOfItems:(NSInteger)itemCount animated:(BOOL)animated;
-- (void)scrollToItemAtIndex:(NSInteger)index animated:(BOOL)animated;
-- (void)scrollToPage:(NSInteger)page animated:(BOOL)animated;
+- (void)scrollByNumberOfItems:(NSInteger)itemCount duration:(NSTimeInterval)duration;
+- (void)scrollToItemAtIndex:(NSInteger)index duration:(NSTimeInterval)duration;
+- (void)scrollToPage:(NSInteger)page duration:(NSTimeInterval)duration;
 - (UIView *)itemViewAtIndex:(NSInteger)index;
 - (NSInteger)indexOfItemView:(UIView *)view;
 - (NSInteger)indexOfItemViewOrSubview:(UIView *)view;

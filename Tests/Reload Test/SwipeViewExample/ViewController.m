@@ -37,6 +37,16 @@
     [_swipeView reloadData];
 }
 
+- (IBAction)forwards
+{
+    [_swipeView scrollByNumberOfItems:1 duration:0.4];
+}
+
+- (IBAction)backwards
+{
+    [_swipeView scrollByNumberOfItems:-1 duration:0.4];
+}
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])
