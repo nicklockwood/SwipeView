@@ -69,6 +69,7 @@
 @synthesize wrapEnabled = _wrapEnabled;
 @synthesize decelerationRate = _decelerationRate;
 @synthesize suppressScrollEvent = _suppressScrollEvent;
+@synthesize scrolling = _scrolling;
 
 
 #pragma mark -
