@@ -145,6 +145,7 @@
 
 - (void)dealloc
 {
+    [_timer invalidate];
     [_scrollView release];
     [_itemViews release];
     [_itemViewPool release];
@@ -511,7 +512,7 @@
         NSTimeInterval time = fminf(1.0f, (currentTime - _startTime) / _scrollDuration);
         CGFloat delta = [self easeInOut:time];
         _scrollOffset = [self clampedOffset:_startOffset + (_endOffset - _startOffset) * delta];
-        [self setContentOffsetWithoutEvent:CGPointMake(_scrollOffset, 0.0f)];
+        [self setContentOffsetWithoutEvent:CGPointMake(_scrollOffset * _itemWidth, 0.0f)];
         [self didScroll];
         if (time == 1.0f)
         {
@@ -533,13 +534,11 @@
     if (!_timer)
     {
         _scrollView.scrollEnabled = NO;
-        _timer = [NSTimer timerWithTimeInterval:1.0/60.0
-                                         target:self
-                                       selector:@selector(step)
-                                       userInfo:nil
-                                        repeats:YES];
-        
-        [[NSRunLoop mainRunLoop] addTimer:_timer forMode:NSDefaultRunLoopMode];
+        _timer = [NSTimer scheduledTimerWithTimeInterval:1.0/60.0
+                                                  target:self
+                                                selector:@selector(step)
+                                                userInfo:nil
+                                                 repeats:YES];
     }
 }
 
@@ -658,8 +657,9 @@
     if (_scrollOffset != scrollOffset)
     {
         _scrolling = NO;
-        CGPoint contentOffset = CGPointMake([self clampedOffset:scrollOffset], 0.0f);
-        _scrollView.contentOffset = contentOffset;
+        CGPoint contentOffset = CGPointMake([self clampedOffset:scrollOffset] * _itemWidth, 0.0f);
+        [self setContentOffsetWithoutEvent:contentOffset];
+        [self didScroll];
     }
 }
 
