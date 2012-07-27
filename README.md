@@ -123,6 +123,10 @@ Returns YES if the user isn't dragging the SwipeView any more, but it is still m
 
 Returns YES if the SwipeView is currently being scrolled programatically.
 
+    @property (nonatomic, assign) BOOL defersItemViewLoading;
+
+Sometimes when your SwipeView contains very complex item views, or large images, there can be a noticeable jerk in scrolling performance as it loads the new views. Setting the `defersItemViewLoading` property to `YES` forces the SwipeView to defer loading of new item views until after the scrolling animation has finished. This can result in visible gaps in the SwipeView if you scroll too far in one go, but for scrolling short distances you may find that this improves performance.
+
 	
 Methods
 --------------

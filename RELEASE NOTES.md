@@ -1,6 +1,7 @@
 Version 1.1.5
 
 - Fixed layout bug when scrolling more than a single page at a time
+- Added defersItemViewLoading property
 
 Version 1.1.4
 

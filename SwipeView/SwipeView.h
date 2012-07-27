@@ -109,6 +109,7 @@ SwipeViewAlignment;
 @property (nonatomic, readonly, getter = isDragging) BOOL dragging;
 @property (nonatomic, readonly, getter = isDecelerating) BOOL decelerating;
 @property (nonatomic, readonly, getter = isScrolling) BOOL scrolling;
+@property (nonatomic, assign) BOOL defersItemViewLoading;
 
 - (void)reloadData;
 - (void)reloadItemAtIndex:(NSInteger)index;

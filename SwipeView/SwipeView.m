@@ -81,6 +81,7 @@
 @synthesize startOffset = _startOffset;
 @synthesize endOffset = _endOffset;
 @synthesize timer = _timer;
+@synthesize defersItemViewLoading = _defersItemViewLoading;
 
 
 #pragma mark -
@@ -94,6 +95,7 @@
     _wrapEnabled = NO;
     _itemsPerPage = 1;
     _truncateFinalPage = NO;
+    _defersItemViewLoading = NO;
     
     _scrollView = [[UIScrollView alloc] init];
 	_scrollView.delegate = self;
@@ -482,7 +484,10 @@
     
     //update view
     [self layOutItemViews];
-    [self loadUnloadViews];
+    if (!_defersItemViewLoading || !_scrolling)
+    {
+        [self loadUnloadViews];
+    }
     
     //send delegate events
     if ([_delegate respondsToSelector:@selector(swipeViewDidScroll:)])
@@ -517,6 +522,7 @@
         if (time == 1.0f)
         {
             _scrolling = NO;
+            [self didScroll];
             if ([_delegate respondsToSelector:@selector(swipeViewDidEndScrollingAnimation:)])
             {
                 [_delegate swipeViewDidEndScrollingAnimation:self];
