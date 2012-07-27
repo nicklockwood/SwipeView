@@ -533,7 +533,6 @@
 {
     if (!_timer)
     {
-        _scrollView.scrollEnabled = NO;
         _timer = [NSTimer scheduledTimerWithTimeInterval:1.0/60.0
                                                   target:self
                                                 selector:@selector(step)
@@ -544,7 +543,6 @@
 
 - (void)stopAnimation
 {
-    _scrollView.scrollEnabled = _scrollEnabled;
     [_timer invalidate];
     _timer = nil;
 }
@@ -931,6 +929,9 @@
 {
     if (!_suppressScrollEvent)
     {
+        //stop animating
+        _scrolling = NO;
+        
         //update scrollOffset
         CGFloat delta = _scrollView.contentOffset.x - _previousContentOffset.x;
         _previousContentOffset = _scrollView.contentOffset;
