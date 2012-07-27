@@ -487,19 +487,19 @@
     if (!_defersItemViewLoading || !_scrolling)
     {
         [self loadUnloadViews];
-    }
-    
-    //send delegate events
-    if ([_delegate respondsToSelector:@selector(swipeViewDidScroll:)])
-    {
-        [_delegate swipeViewDidScroll:self];
-    }
-    if (_previousItemIndex != self.currentItemIndex)
-    {
-        _previousItemIndex = self.currentItemIndex;
-        if ([_delegate respondsToSelector:@selector(swipeViewCurrentItemIndexDidChange:)])
+        
+        //send delegate events
+        if ([_delegate respondsToSelector:@selector(swipeViewDidScroll:)])
         {
-            [_delegate swipeViewCurrentItemIndexDidChange:self];
+            [_delegate swipeViewDidScroll:self];
+        }
+        if (_previousItemIndex != self.currentItemIndex)
+        {
+            _previousItemIndex = self.currentItemIndex;
+            if ([_delegate respondsToSelector:@selector(swipeViewCurrentItemIndexDidChange:)])
+            {
+                [_delegate swipeViewCurrentItemIndexDidChange:self];
+            }
         }
     }
 }
