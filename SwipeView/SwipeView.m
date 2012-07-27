@@ -598,7 +598,7 @@
 - (NSInteger)currentPage
 {
     if (_itemsPerPage > 1 && _truncateFinalPage && !_wrapEnabled &&
-        _scrollView.contentOffset.x >= _scrollView.contentSize.width - _scrollView.frame.size.width - _itemWidth * 0.5f)
+        self.currentItemIndex > (_numberOfItems / _itemsPerPage - 1) * _itemsPerPage)
     {
         return self.numberOfPages - 1;
     }
@@ -675,7 +675,6 @@
         _startTime = [[NSDate date] timeIntervalSinceReferenceDate];
         _startOffset = _scrollOffset;
         _scrollDuration = duration;
-        _previousItemIndex = roundf(_scrollOffset);
         _endOffset = _startOffset + offset;
         if (!_wrapEnabled)
         {
