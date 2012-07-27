@@ -39,12 +39,12 @@
 
 - (IBAction)forwards
 {
-    [_swipeView scrollByNumberOfItems:1 duration:0.4];
+    [_swipeView scrollByNumberOfItems:3 duration:1.4];
 }
 
 - (IBAction)backwards
 {
-    [_swipeView scrollByNumberOfItems:-1 duration:0.4];
+    [_swipeView scrollByNumberOfItems:-3 duration:1.4];
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil

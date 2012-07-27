@@ -96,7 +96,7 @@
 - (IBAction)pageControlTapped
 {
     //update swipe view page
-    [_swipeView scrollToPage:_pageControl.currentPage animated:YES];
+    [_swipeView scrollToPage:_pageControl.currentPage duration:0.4];
 }
 
 - (void)dealloc

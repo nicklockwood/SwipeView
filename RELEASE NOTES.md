@@ -1,3 +1,7 @@
+Version 1.1.5
+
+- Fixed layout bug when scrolling more than a single page at a time
+
 Version 1.1.4
 
 - Scrolling methods now let you specify the duration of the scroll
