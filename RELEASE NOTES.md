@@ -1,6 +1,7 @@
 Version 1.1.6
 
 - defersItemViewLoading property is now observed when swiping as well as when scrolling programatically
+- Fixed divide-by-zero error
 
 Version 1.1.5
 

@@ -767,7 +767,7 @@
 - (void)loadUnloadViews
 {
     //calculate visible view indices
-    NSInteger numberOfVisibleItems = ceilf(self.bounds.size.width / _itemWidth) + 2;
+    NSInteger numberOfVisibleItems = _itemWidth ? (ceilf(self.bounds.size.width / _itemWidth) + 2): 0;
     NSMutableSet *visibleIndices = [NSMutableSet setWithCapacity:numberOfVisibleItems];
     NSInteger offset = self.currentItemIndex - ceilf(_scrollView.frame.origin.x / _itemWidth) - 1;
     if (!_wrapEnabled)
