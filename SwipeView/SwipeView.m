@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.1.5
+//  Version 1.1.6
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -49,6 +49,7 @@
 @property (nonatomic, assign) NSTimeInterval startTime;
 @property (nonatomic, assign) CGFloat startOffset;
 @property (nonatomic, assign) CGFloat endOffset;
+@property (nonatomic, assign) CGFloat lastUpdateOffset;
 @property (nonatomic, unsafe_unretained) NSTimer *timer;
 
 @end
@@ -80,6 +81,7 @@
 @synthesize startTime = _startTime;
 @synthesize startOffset = _startOffset;
 @synthesize endOffset = _endOffset;
+@synthesize lastUpdateOffset = _lastUpdateOffset;
 @synthesize timer = _timer;
 @synthesize defersItemViewLoading = _defersItemViewLoading;
 
@@ -484,8 +486,11 @@
     
     //update view
     [self layOutItemViews];
-    if (!_defersItemViewLoading || !_scrolling)
+    if (!_defersItemViewLoading ||
+        fabsf([self minScrollDistanceFromOffset:_lastUpdateOffset toOffset:_scrollOffset]) >= 1.0f)
     {
+        //update views
+        _lastUpdateOffset = self.scrollOffset;
         [self loadUnloadViews];
         
         //send delegate events
@@ -934,7 +939,7 @@
 {
     if (!_suppressScrollEvent)
     {
-        //stop animating
+        //stop scrolling animation
         _scrolling = NO;
         
         //update scrollOffset

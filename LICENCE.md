@@ -1,6 +1,6 @@
 SwipeView
 
-Version 1.1.5, July 27th, 2012
+Version 1.1.6, August 6th, 2012
 
 Copyright (C) 2010 Charcoal Design
 

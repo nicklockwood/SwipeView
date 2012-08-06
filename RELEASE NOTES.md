@@ -1,3 +1,7 @@
+Version 1.1.6
+
+- defersItemViewLoading property is now observed when swiping as well as when scrolling programatically
+
 Version 1.1.5
 
 - Fixed layout bug when scrolling more than a single page at a time
