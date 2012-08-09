@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.1.6
+//  Version 1.1.7
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -72,6 +72,7 @@
 @synthesize numberOfItems = _numberOfItems;
 @synthesize pagingEnabled = _pagingEnabled;
 @synthesize scrollEnabled = _scrollEnabled;
+@synthesize delaysContentTouches = _delaysContentTouches;
 @synthesize bounces = _bounces;
 @synthesize wrapEnabled = _wrapEnabled;
 @synthesize decelerationRate = _decelerationRate;
@@ -93,6 +94,7 @@
 {
     _scrollEnabled = YES;
     _pagingEnabled = YES;
+    _delaysContentTouches = YES;
     _bounces = YES;
     _wrapEnabled = NO;
     _itemsPerPage = 1;
@@ -101,7 +103,7 @@
     
     _scrollView = [[UIScrollView alloc] init];
 	_scrollView.delegate = self;
-	_scrollView.delaysContentTouches = NO;
+	_scrollView.delaysContentTouches = _delaysContentTouches;
     _scrollView.bounces = _bounces && !_wrapEnabled;
 	_scrollView.alwaysBounceHorizontal = _bounces;
 	_scrollView.pagingEnabled = _pagingEnabled;
@@ -231,6 +233,12 @@
         _scrollView.bounces = _bounces && !_wrapEnabled;
         [self setNeedsLayout];
     }
+}
+
+- (void)setDelaysContentTouches:(BOOL)delaysContentTouches
+{
+    _delaysContentTouches = delaysContentTouches;
+    _scrollView.delaysContentTouches = delaysContentTouches;
 }
 
 - (void)setBounces:(BOOL)bounces
@@ -962,10 +970,20 @@
     {
         [_delegate swipeViewWillBeginDragging:self];
     }
+    
+    //force refresh
+    _lastUpdateOffset = self.scrollOffset - 1.0f;
+    [self didScroll];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
+    if (!decelerate)
+    {
+        //force refresh
+        _lastUpdateOffset = self.scrollOffset - 1.0f;
+        [self didScroll];
+    }
     if ([_delegate respondsToSelector:@selector(swipeViewDidEndDragging:willDecelerate:)])
     {
         [_delegate swipeViewDidEndDragging:self willDecelerate:decelerate];
@@ -982,17 +1000,13 @@
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+    //force refresh
+    _lastUpdateOffset = self.scrollOffset - 1.0f;
+    [self didScroll];
+    
     if ([_delegate respondsToSelector:@selector(swipeViewDidEndDecelerating:)])
     {
         [_delegate swipeViewDidEndDecelerating:self];
-    }
-}
-
-- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
-{
-    if ([_delegate respondsToSelector:@selector(swipeViewDidEndScrollingAnimation:)])
-    {
-        [_delegate swipeViewDidEndScrollingAnimation:self];
     }
 }
 

@@ -99,9 +99,13 @@ Enables and disables paging. When paging is enabled, the SwipeView will stop at 
 
 Enables and disables user scrolling of the SwipeView. The SwipeView can still be scrolled programmatically if this property is set to NO.
 
-    @property (nonatomic, assign, getter = isScrollEnabled) BOOL wrapEnabled;
+    @property (nonatomic, assign, getter = isWrapEnabled) BOOL wrapEnabled;
 
 Enables and disables wrapping. When in wrapped mode, the SwipeView can be scrolled indefinitely and will wrap around to the first item view when it reaches past the last item. When wrap is enabled, the bounces property has no effect.
+
+    @property (nonatomic, assign) BOOL delaysContentTouches;
+
+This property works like the equivalent property of UIScrollView. It defers handling of touch events on subviews within the SwipeView so that embedded controls such as buttons do not interfere with the smooth scrolling of the SwipeView. Defaults to YES.
 
 	@property (nonatomic, assign) BOOL bounces;
 
@@ -171,11 +175,11 @@ Protocols
 
 The SwipeView follows the Apple convention for data-driven views by providing two protocol interfaces, SwipeViewDataSource and SwipeViewDelegate. The SwipeViewDataSource protocol has the following required methods:
 
-	- (NSUInteger)numberOfItemsInSwipeView:(SwipeView *)swipeView;
+	- (NSInteger)numberOfItemsInSwipeView:(SwipeView *)swipeView;
 
 Return the number of items (views) in the SwipeView.
 
-	- (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSUInteger)index reusingView:(UIView *)view;
+	- (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view;
 
 Return a view to be displayed at the specified index in the SwipeView. The `reusingView` argument works like a UIPickerView, where views that have previously been displayed in the SwipeView are passed back to the method to be recycled. If this argument is not nil, you can set its properties and return it instead of creating a new view instance, which will slightly improve performance. Unlike UITableView, there is no reuseIdentifier for distinguishing between different SwipeView view types, so if your SwipeView contains multiple different view types then you should just ignore this parameter and return a new view each time the method is called. You should ensure that each time the `swipeView:viewForItemAtIndex:reusingView:` method is called, it either returns the reusingView or a brand new view instance rather than maintaining your own pool of recyclable views, as returning multiple copies of the same view for different SwipeView item indexes may cause display issues with the SwipeView.
 

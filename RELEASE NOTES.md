@@ -1,3 +1,8 @@
+Version 1.1.7
+
+- Added delaysContentTouches property, which defaults to YES
+- Fixed blank pages issue when using defersItemViewLoading
+
 Version 1.1.6
 
 - defersItemViewLoading property is now observed when swiping as well as when scrolling programatically
