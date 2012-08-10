@@ -918,7 +918,7 @@
     _previousItemIndex = 0;
     _scrollOffset = 0.0f;
     _lastUpdateOffset = -1.0f;
-    _itemWidth = 0.0f;
+    _itemSize = CGSizeZero;
     _scrolling = NO;
     
     //remove old views
