@@ -55,9 +55,9 @@ The number of items in the SwipeView (read only). To set this, implement the `nu
 
 The number of pages in the SwipeView (read only). To set this, implement the `numberOfItemsInSwipeView:` dataSource method and set the `itemsPerPage` value. If `itemsPerPage` = 1, numberOfPages will match the `numberOfItems`.
 
-    @property (nonatomic, readonly) CGFloat itemWidth;
+    @property (nonatomic, readonly) CGSize itemSize;
     
-The width of each item in the SwipeView. This property is read-only, but can be set using the `swipeViewItemWidth:` delegate method.
+The size of each item in the SwipeView. This property is read-only, but can be set using the `swipeViewItemSize:` delegate method.
 
     @property (nonatomic, assign) NSInteger itemsPerPage;
     
@@ -102,6 +102,10 @@ Enables and disables user scrolling of the SwipeView. The SwipeView can still be
     @property (nonatomic, assign, getter = isWrapEnabled) BOOL wrapEnabled;
 
 Enables and disables wrapping. When in wrapped mode, the SwipeView can be scrolled indefinitely and will wrap around to the first item view when it reaches past the last item. When wrap is enabled, the bounces property has no effect.
+
+    @property (nonatomic, assign, getter = isVertical) BOOL vertical;
+
+This property toggles whether the SwipeView is displayed horizontally or vertically on screen.
 
     @property (nonatomic, assign) BOOL delaysContentTouches;
 
@@ -185,9 +189,9 @@ Return a view to be displayed at the specified index in the SwipeView. The `reus
 
 The SwipeViewDelegate protocol has the following optional methods:
 
-    - (CGFloat)swipeViewItemWidth:(SwipeView *)swipeView;
+    - (CGFloat)swipeViewItemSize:(SwipeView *)swipeView;
 
-Returns the width in points/pixels of each item view. If this method is not implemented, the item width is automatically calculated from the first item view that is loaded.
+Returns the size in points/pixels of each item view. If this method is not implemented, the item size is automatically calculated from the first item view that is loaded.
 
     - (void)swipeViewDidScroll:(SwipeView *)swipeView;
     

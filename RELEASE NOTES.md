@@ -1,3 +1,8 @@
+Version 1.2
+
+- Added vertical scrolling option
+- Changed itemWidth property and swipeViewItemWidth: delegate method to itemSize and swipeViewItemSize: respectively.
+
 Version 1.1.7
 
 - Added delaysContentTouches property, which defaults to YES

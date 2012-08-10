@@ -1,7 +1,7 @@
 //
 //  SwipeView.h
 //
-//  Version 1.1.7
+//  Version 1.2
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -92,7 +92,7 @@ SwipeViewAlignment;
 @property (nonatomic, weak) IBOutlet id<SwipeViewDelegate> delegate;
 @property (nonatomic, readonly) NSInteger numberOfItems;
 @property (nonatomic, readonly) NSInteger numberOfPages;
-@property (nonatomic, readonly) CGFloat itemWidth;
+@property (nonatomic, readonly) CGSize itemSize;
 @property (nonatomic, assign) NSInteger itemsPerPage;
 @property (nonatomic, assign) BOOL truncateFinalPage;
 @property (nonatomic, strong, readonly) NSArray *indexesForVisibleItems;
@@ -111,6 +111,7 @@ SwipeViewAlignment;
 @property (nonatomic, readonly, getter = isDecelerating) BOOL decelerating;
 @property (nonatomic, readonly, getter = isScrolling) BOOL scrolling;
 @property (nonatomic, assign) BOOL defersItemViewLoading;
+@property (nonatomic, assign, getter = isVertical) BOOL vertical;
 
 - (void)reloadData;
 - (void)reloadItemAtIndex:(NSInteger)index;
@@ -135,7 +136,7 @@ SwipeViewAlignment;
 @protocol SwipeViewDelegate <NSObject>
 @optional
 
-- (CGFloat)swipeViewItemWidth:(SwipeView *)swipeView;
+- (CGSize)swipeViewItemSize:(SwipeView *)swipeView;
 - (void)swipeViewDidScroll:(SwipeView *)swipeView;
 - (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView;
 - (void)swipeViewWillBeginDragging:(SwipeView *)swipeView;
