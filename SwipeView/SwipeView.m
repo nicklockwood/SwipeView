@@ -757,7 +757,8 @@
     if (_scrollOffset != scrollOffset)
     {
         _scrollOffset = scrollOffset;
-        _scrolling = NO;
+        _lastUpdateOffset = _scrollOffset - 1.0f; //force refresh
+        _scrolling = NO; //stop scrolling
         CGPoint contentOffset = _vertical? CGPointMake(0.0f, [self clampedOffset:scrollOffset] * _itemSize.height): CGPointMake([self clampedOffset:scrollOffset] * _itemSize.width, 0.0f);
         [self setContentOffsetWithoutEvent:contentOffset];
         [self didScroll];
@@ -914,8 +915,10 @@
     //reset properties
     [self setContentOffsetWithoutEvent:CGPointZero];
     _scrollView.contentSize = CGSizeZero;
+    _previousItemIndex = 0;
     _scrollOffset = 0.0f;
-    _itemSize = CGSizeZero;
+    _lastUpdateOffset = -1.0f;
+    _itemWidth = 0.0f;
     _scrolling = NO;
     
     //remove old views
