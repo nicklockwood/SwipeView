@@ -1,7 +1,13 @@
+Version 1.2.1
+
+- Fixed off-by-one error when using scrollToItemAtIndex:duration: method
+- swipeViewDidScroll: event is now sent as normal when defersItemViewLoading is enabled, but swipeViewCurrentItemIndexDidChange: is still deferred
+
 Version 1.2
 
 - Added vertical scrolling option
-- Changed itemWidth property and swipeViewItemWidth: delegate method to itemSize and swipeViewItemSize: respectively.
+- Changed itemWidth property and swipeViewItemWidth: delegate method to itemSize and swipeViewItemSize: respectively
+- Fixes some bugs when defersItemViewLoading is enabled
 
 Version 1.1.7
 

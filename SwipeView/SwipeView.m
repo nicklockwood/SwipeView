@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.2
+//  Version 1.2.1
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -570,18 +570,18 @@
     
     //update view
     [self layOutItemViews];
-    if (!_defersItemViewLoading ||
-        fabsf([self minScrollDistanceFromOffset:_lastUpdateOffset toOffset:_scrollOffset]) >= 1.0f)
+    if ([_delegate respondsToSelector:@selector(swipeViewDidScroll:)])
     {
-        //update views
+        [_delegate swipeViewDidScroll:self];
+    }
+    
+    if (!_defersItemViewLoading || fabsf([self minScrollDistanceFromOffset:_lastUpdateOffset toOffset:_scrollOffset]) >= 1.0f)
+    {
+        //load views
         _lastUpdateOffset = self.scrollOffset;
         [self loadUnloadViews];
         
-        //send delegate events
-        if ([_delegate respondsToSelector:@selector(swipeViewDidScroll:)])
-        {
-            [_delegate swipeViewDidScroll:self];
-        }
+        //send index update event
         if (_previousItemIndex != self.currentItemIndex)
         {
             _previousItemIndex = self.currentItemIndex;
@@ -818,7 +818,7 @@
 
 - (void)scrollToItemAtIndex:(NSInteger)index duration:(NSTimeInterval)duration
 {
-    [self scrollByNumberOfItems:[self minScrollDistanceFromIndex:roundf(_scrollOffset) toIndex:index] duration:duration];
+    [self scrollToOffset:index duration:duration];
 }
 
 - (void)scrollToPage:(NSInteger)page duration:(NSTimeInterval)duration
@@ -1090,6 +1090,12 @@
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+    //prevent rounding errors from accumulating
+    if (_pagingEnabled)
+    {
+        _scrollOffset = roundf(_scrollOffset);
+    }
+    
     //force refresh
     _lastUpdateOffset = self.scrollOffset - 1.0f;
     [self didScroll];
