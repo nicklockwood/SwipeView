@@ -1,3 +1,7 @@
+Version 1.2.2
+
+- Fixed rounding error for edge-aligned SwipeViews with paging enabled
+
 Version 1.2.1
 
 - Fixed off-by-one error when using scrollToItemAtIndex:duration: method

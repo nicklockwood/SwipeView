@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.2.1
+//  Version 1.2.2
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -1091,9 +1091,10 @@
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     //prevent rounding errors from accumulating
-    if (_pagingEnabled)
+    CGFloat integerOffset = roundf(_scrollOffset);
+    if (fabsf(_scrollOffset - integerOffset) < 0.01f)
     {
-        _scrollOffset = roundf(_scrollOffset);
+        _scrollOffset = integerOffset;
     }
     
     //force refresh
