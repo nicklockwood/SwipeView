@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.2.2
+//  Version 1.2.3
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -738,10 +738,7 @@
 
 - (void)setCurrentItemIndex:(NSInteger)currentItemIndex
 {
-    if (currentItemIndex != self.currentItemIndex)
-    {
-        [self scrollToItemAtIndex:currentItemIndex duration:0.0];
-    }
+    self.scrollOffset = currentItemIndex;
 }
 
 - (void)setCurrentPage:(NSInteger)currentPage
@@ -759,6 +756,7 @@
         _scrollOffset = scrollOffset;
         _lastUpdateOffset = _scrollOffset - 1.0f; //force refresh
         _scrolling = NO; //stop scrolling
+        [self updateLayout];
         CGPoint contentOffset = _vertical? CGPointMake(0.0f, [self clampedOffset:scrollOffset] * _itemSize.height): CGPointMake([self clampedOffset:scrollOffset] * _itemSize.width, 0.0f);
         [self setContentOffsetWithoutEvent:contentOffset];
         [self didScroll];

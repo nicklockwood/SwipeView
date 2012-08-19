@@ -1,3 +1,7 @@
+Version 1.2.3
+
+- Fixed issue where setting currentItemIndex immediately after creating SwipeView would prevent user being able to swipe to the left 
+
 Version 1.2.2
 
 - Fixed rounding error for edge-aligned SwipeViews with paging enabled
