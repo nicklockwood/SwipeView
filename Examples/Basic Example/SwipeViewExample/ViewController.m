@@ -93,6 +93,11 @@
     _pageControl.currentPage = swipeView.currentPage;
 }
 
+- (void)swipeView:(SwipeView *)swipeView didSelectItemAtIndex:(NSInteger)index
+{
+    NSLog(@"Selected item at index %i", index);
+}
+
 - (IBAction)pageControlTapped
 {
     //update swipe view page

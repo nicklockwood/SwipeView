@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.2.3
+//  Version 1.2.4
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -578,7 +578,7 @@
     if (!_defersItemViewLoading || fabsf([self minScrollDistanceFromOffset:_lastUpdateOffset toOffset:_scrollOffset]) >= 1.0f)
     {
         //load views
-        _lastUpdateOffset = self.scrollOffset;
+        _lastUpdateOffset = self.currentItemIndex;
         [self loadUnloadViews];
         
         //send index update event
@@ -941,6 +941,16 @@
 	UIView *view = [super hitTest:point withEvent:event];
 	if ([view isEqual:self])
     {
+        for (UIView *subview in _scrollView.subviews)
+        {
+            CGPoint offset = CGPointMake(point.x - _scrollView.frame.origin.x + _scrollView.contentOffset.x - subview.frame.origin.x,
+                                         point.y - _scrollView.frame.origin.y + _scrollView.contentOffset.y - subview.frame.origin.y);
+            
+            if ((view = [subview hitTest:offset withEvent:event]))
+            {
+                return view;
+            }
+        }
 		return _scrollView;
 	}
 	return view;
@@ -1021,9 +1031,12 @@
 {
     CGPoint point = [tapGesture locationInView:_scrollView];
     NSInteger index = _vertical? (point.y / (_itemSize.height)): (point.x / (_itemSize.width));
-    if ([_delegate respondsToSelector:@selector(swipeView:didSelectItemAtIndex:)])
+    if (index >= 0 && index <= _numberOfItems)
     {
-        [_delegate swipeView:self didSelectItemAtIndex:index];
+        if ([_delegate respondsToSelector:@selector(swipeView:didSelectItemAtIndex:)])
+        {
+            [_delegate swipeView:self didSelectItemAtIndex:index];
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 Purpose
 --------------
 
-SwipeView is a class designed to simplify the implementation of horizontal, paged scrolling views on iOS. It is based on a UIScrollView, but adds convenient functionality such as a UITableView-style dataSource/delegat interface for loading views dynamically, and efficient view loading, unloading and recycling.
+SwipeView is a class designed to simplify the implementation of horizontal, paged scrolling views on iOS. It is based on a UIScrollView, but adds convenient functionality such as a UITableView-style dataSource/delegate interface for loading views dynamically, and efficient view loading, unloading and recycling.
 
 SwipeView's interface and implementation is based on the iCarousel library, and should be familiar to anyone who has used iCarousel.
 
@@ -9,9 +9,9 @@ SwipeView's interface and implementation is based on the iCarousel library, and 
 Supported OS & SDK Versions
 -----------------------------
 
-* Supported build target - iOS 5.1 / Mac OS 10.7 (Xcode 4.3.2, Apple LLVM compiler 3.1)
-* Earliest supported deployment target - iOS 4.3 / Mac OS 10.7
-* Earliest compatible deployment target - iOS 3.2 / Mac OS 10.6
+* Supported build target - iOS 5.1 (Xcode 4.4.1, Apple LLVM compiler 4.0)
+* Earliest supported deployment target - iOS 4.3
+* Earliest compatible deployment target - iOS 3.2
 
 NOTE: 'Supported' means that the library has been tested with this version. 'Compatible' means that the library should work on this OS version (i.e. it doesn't rely on any unavailable SDK features) but is no longer being tested for compatibility and may require tweaking or bug fixes to run correctly.
 
@@ -236,6 +236,6 @@ There are two basic approaches to detecting taps on views in SwipeView. The firs
 
 Alternatively, if you want a little more control you can supply a UIButton or UIControl as the item view and handle the touch interactions yourself.
 
-You can also nest UIControls within your item views and these will receive touches as expected.
+You can also nest UIControls within your item views and these will receive touches as expected (See the Controls Example project for how this can be done).
 
 If you wish to detect other types of interaction such as swipes, double taps or long presses, the simplest way is to attach a UIGestureRecognizer to your item view or its subviews before passing it to the SwipeView.

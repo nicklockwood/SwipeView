@@ -1,3 +1,9 @@
+Version 1.2.4
+
+- SwipeView now correctly handles touch events on views outside the current page bounds
+- Fixed rounding error when using defersItemViewLoading is enabled
+- Added Controls Example to demo touch event handling
+
 Version 1.2.3
 
 - Fixed issue where setting currentItemIndex immediately after creating SwipeView would prevent user being able to swipe to the left 
