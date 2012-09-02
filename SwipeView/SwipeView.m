@@ -1031,7 +1031,7 @@
 {
     CGPoint point = [tapGesture locationInView:_scrollView];
     NSInteger index = _vertical? (point.y / (_itemSize.height)): (point.x / (_itemSize.width));
-    if (index >= 0 && index <= _numberOfItems)
+    if (index >= 0 && index < _numberOfItems)
     {
         if ([_delegate respondsToSelector:@selector(swipeView:didSelectItemAtIndex:)])
         {
