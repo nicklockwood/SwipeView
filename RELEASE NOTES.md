@@ -1,3 +1,7 @@
+Version 1.2.5
+
+- Fixed issue where SwipeView was not correctly deferring view loading when the defersItemViewLoading option was enabled
+
 Version 1.2.4
 
 - SwipeView now correctly handles touch events on views outside the current page bounds

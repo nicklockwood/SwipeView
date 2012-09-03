@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.2.4
+//  Version 1.2.5
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -83,6 +83,7 @@
 @synthesize startOffset = _startOffset;
 @synthesize endOffset = _endOffset;
 @synthesize lastUpdateOffset = _lastUpdateOffset;
+@synthesize currentItemIndex = _currentItemIndex;
 @synthesize timer = _timer;
 @synthesize defersItemViewLoading = _defersItemViewLoading;
 @synthesize vertical = _vertical;
@@ -313,7 +314,7 @@
 
 - (UIView *)currentItemView
 {
-    return [self itemViewAtIndex:self.currentItemIndex];
+    return [self itemViewAtIndex:_currentItemIndex];
 }
 
 - (NSInteger)indexOfItemView:(UIView *)view
@@ -577,14 +578,17 @@
     
     if (!_defersItemViewLoading || fabsf([self minScrollDistanceFromOffset:_lastUpdateOffset toOffset:_scrollOffset]) >= 1.0f)
     {
+        //update item index
+        _currentItemIndex = [self clampedIndex:roundf(_scrollOffset)];
+        
         //load views
-        _lastUpdateOffset = self.currentItemIndex;
+        _lastUpdateOffset = _currentItemIndex;
         [self loadUnloadViews];
         
         //send index update event
-        if (_previousItemIndex != self.currentItemIndex)
+        if (_previousItemIndex != _currentItemIndex)
         {
-            _previousItemIndex = self.currentItemIndex;
+            _previousItemIndex = _currentItemIndex;
             if ([_delegate respondsToSelector:@selector(swipeViewCurrentItemIndexDidChange:)])
             {
                 [_delegate swipeViewCurrentItemIndexDidChange:self];
@@ -686,19 +690,14 @@
     [UIView setAnimationsEnabled:YES];
 }
 
-- (NSInteger)currentItemIndex
-{
-    return [self clampedIndex:roundf(_scrollOffset)];
-}
-
 - (NSInteger)currentPage
 {
     if (_itemsPerPage > 1 && _truncateFinalPage && !_wrapEnabled &&
-        self.currentItemIndex > (_numberOfItems / _itemsPerPage - 1) * _itemsPerPage)
+        _currentItemIndex > (_numberOfItems / _itemsPerPage - 1) * _itemsPerPage)
     {
         return self.numberOfPages - 1;
     }
-    return roundf((float)self.currentItemIndex / (float)_itemsPerPage);
+    return roundf((float)_currentItemIndex / (float)_itemsPerPage);
 }
 
 - (NSInteger)numberOfPages
@@ -738,12 +737,13 @@
 
 - (void)setCurrentItemIndex:(NSInteger)currentItemIndex
 {
+    _currentItemIndex = currentItemIndex;
     self.scrollOffset = currentItemIndex;
 }
 
 - (void)setCurrentPage:(NSInteger)currentPage
 {
-    if (currentPage * _itemsPerPage != self.currentItemIndex)
+    if (currentPage * _itemsPerPage != _currentItemIndex)
     {
         [self scrollToPage:currentPage duration:0.0];
     }
@@ -863,7 +863,7 @@
     CGFloat itemWidth = _vertical? _itemSize.height: _itemSize.width;
     NSInteger numberOfVisibleItems = itemWidth ? (ceilf(width / itemWidth) + 2): 0;
     NSMutableSet *visibleIndices = [NSMutableSet setWithCapacity:numberOfVisibleItems];
-    NSInteger offset = self.currentItemIndex - ceilf(x / itemWidth) - 1;
+    NSInteger offset = _currentItemIndex - ceilf(x / itemWidth) - 1;
     if (!_wrapEnabled)
     {
         offset = MAX(0, MIN(_numberOfItems - numberOfVisibleItems, offset));
