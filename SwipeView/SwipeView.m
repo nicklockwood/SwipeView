@@ -123,6 +123,7 @@
     _previousItemIndex = 0;
     _previousContentOffset = _scrollView.contentOffset;
     _scrollOffset = 0.0f;
+    _currentItemIndex = 0;
     
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
     tapGesture.delegate = self;
@@ -915,6 +916,7 @@
     _scrollView.contentSize = CGSizeZero;
     _previousItemIndex = 0;
     _scrollOffset = 0.0f;
+    _currentItemIndex = 0;
     _lastUpdateOffset = -1.0f;
     _itemSize = CGSizeZero;
     _scrolling = NO;
