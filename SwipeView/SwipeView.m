@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.2.5
+//  Version 1.2.6
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -124,6 +124,7 @@
     _previousContentOffset = _scrollView.contentOffset;
     _scrollOffset = 0.0f;
     _currentItemIndex = 0;
+    _numberOfItems = 0;
     
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
     tapGesture.delegate = self;
@@ -168,10 +169,10 @@
     if (_dataSource != dataSource)
     {
         _dataSource = dataSource;
-		if (_dataSource)
-		{
-			[self reloadData];
-		}
+        if (_dataSource)
+        {
+            [self reloadData];
+        }
     }
 }
 
@@ -181,12 +182,6 @@
     {
         _delegate = delegate;
 		[self setNeedsLayout];
-        
-        //DEPRECATED: check for legacy delegate method usage
-        if ([_delegate respondsToSelector:@selector(swipeViewItemWidth:)])
-        {
-            NSLog(@"Warning: The swipeViewItemWidth: delegate method is deprecated. Use swipeViewItemSize: instead");
-        }
     }
 }
 
@@ -347,23 +342,6 @@
 #pragma mark -
 #pragma mark View layout
 
-- (void)updateItemSize
-{
-    //item width
-    if ([_delegate respondsToSelector:@selector(swipeViewItemSize:)])
-    {
-        _itemSize = [_delegate swipeViewItemSize:self];
-    }
-    else if (_numberOfItems > 0)
-    {
-        if ([_itemViews count] == 0)
-        {
-            [self loadViewAtIndex:0];
-        }
-        UIView *itemView = [[_itemViews allValues] lastObject];
-        _itemSize = itemView.frame.size;
-    }
-}
 - (void)updateScrollOffset
 {
     if (_wrapEnabled)
@@ -403,8 +381,6 @@
 
 - (void)updateScrollViewDimensions
 {
-    [self updateItemSize];
-    
     CGRect frame = self.bounds;
     CGSize contentSize = frame.size;
     switch (_alignment)
@@ -477,8 +453,6 @@
     {
         _scrollView.contentSize = contentSize;
     }
-    
-    [self updateScrollOffset];
 }
 
 - (CGFloat)offsetForItemAtIndex:(NSInteger)index
@@ -487,17 +461,30 @@
     CGFloat offset = index - _scrollOffset;
     if (_wrapEnabled)
     {
-        if (offset > _numberOfItems/2)
+        if (_alignment == SwipeViewAlignmentCenter)
         {
-            offset -= _numberOfItems;
+            if (offset > _numberOfItems/2)
+            {
+                offset -= _numberOfItems;
+            }
+            else if (offset < -_numberOfItems/2)
+            {
+                offset += _numberOfItems;
+            }
         }
-        else if (offset < -_numberOfItems/2)
+        else
         {
-            offset += _numberOfItems;
-        }
-        if (_numberOfItems == 0)
-        {
-            offset = 0.0f;
+            CGFloat width = _vertical? self.bounds.size.height: self.bounds.size.width;
+            CGFloat x = _vertical? _scrollView.frame.origin.y: _scrollView.frame.origin.x;
+            CGFloat itemWidth = _vertical? _itemSize.height: _itemSize.width;
+            if (offset * itemWidth + x > width)
+            {
+                offset -= _numberOfItems;
+            }
+            else if (offset * itemWidth + x < -itemWidth)
+            {
+                offset += _numberOfItems;
+            }
         }
     }
     return offset;
@@ -527,7 +514,9 @@
 
 - (void)updateLayout
 {
+    [self updateItemSizeAndCount];
     [self updateScrollViewDimensions];
+    [self updateScrollOffset];
     [UIView setAnimationsEnabled:NO];
     [self loadUnloadViews];
     [UIView setAnimationsEnabled:YES];
@@ -856,23 +845,51 @@
     return view;
 }
 
+- (void)updateItemSizeAndCount
+{
+    //get number of items
+    _numberOfItems = [_dataSource numberOfItemsInSwipeView:self];
+    
+    //get item size
+    if ([_delegate respondsToSelector:@selector(swipeViewItemSize:)])
+    {
+        _itemSize = [_delegate swipeViewItemSize:self];
+    }
+    else if (_numberOfItems > 0)
+    {
+        if ([_itemViews count] == 0)
+        {
+            [self loadViewAtIndex:0];
+        }
+        UIView *itemView = [[_itemViews allValues] lastObject];
+        _itemSize = itemView.frame.size;
+    }
+}
+
 - (void)loadUnloadViews
 {
     //calculate visible view indices
     CGFloat width = _vertical? self.bounds.size.height: self.bounds.size.width;
     CGFloat x = _vertical? _scrollView.frame.origin.y: _scrollView.frame.origin.x;
     CGFloat itemWidth = _vertical? _itemSize.height: _itemSize.width;
-    NSInteger numberOfVisibleItems = itemWidth ? (ceilf(width / itemWidth) + 2): 0;
-    NSMutableSet *visibleIndices = [NSMutableSet setWithCapacity:numberOfVisibleItems];
-    NSInteger offset = _currentItemIndex - ceilf(x / itemWidth) - 1;
-    if (!_wrapEnabled)
+    itemWidth = itemWidth ?: width;
+    
+    //calculate range
+    CGFloat startOffset = _scrollOffset - x / itemWidth;
+    NSInteger startIndex = floorf(startOffset);
+    NSInteger numberOfVisibleItems =  ceilf(width / itemWidth + (startOffset - startIndex));
+    if (_defersItemViewLoading)
     {
-        offset = MAX(0, MIN(_numberOfItems - numberOfVisibleItems, offset));
+        startIndex = _currentItemIndex - ceilf(x / itemWidth) - 1;
+        numberOfVisibleItems = ceilf(width / itemWidth) + 3;
     }
     
+    //create indices
+    numberOfVisibleItems = MIN(numberOfVisibleItems, _numberOfItems);
+    NSMutableSet *visibleIndices = [NSMutableSet setWithCapacity:numberOfVisibleItems];
     for (NSInteger i = 0; i < numberOfVisibleItems; i++)
     {
-        NSInteger index = [self clampedIndex:i + offset];
+        NSInteger index = [self clampedIndex:i + startIndex];
         [visibleIndices addObject:[NSNumber numberWithInteger:index]];
     }
     
@@ -926,9 +943,6 @@
     {
         [view removeFromSuperview];
     }
-    
-    //get number of items
-    _numberOfItems = [_dataSource numberOfItemsInSwipeView:self];
     
     //reset view pools
     self.itemViews = [NSMutableDictionary dictionary];

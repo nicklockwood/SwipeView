@@ -135,6 +135,7 @@ Returns YES if the SwipeView is currently being scrolled programatically.
 
 Sometimes when your SwipeView contains very complex item views, or large images, there can be a noticeable jerk in scrolling performance as it loads the new views. Setting the `defersItemViewLoading` property to `YES` forces the SwipeView to defer updating the currentItemIndex property and loading of new item views until after the scroll has finished. This can result in visible gaps in the SwipeView if you scroll too far in one go, but for scrolling short distances you may find that this improves animation performance.
 	
+	
 Methods
 --------------
 

@@ -1,3 +1,9 @@
+Version 1.2.6
+
+- SwipeView now calculates number of visible views more accurately
+- Fixed a bug in the wrapping logic that could cause gaps when wrapEnabled = YES and alignment = SwipeViewAlignmentEdge
+- SwipeView now won't attempt to call any datasource methods until the views need to be drawn, which avoids certain race conditions
+
 Version 1.2.5
 
 - Fixed issue where SwipeView was not correctly deferring view loading when the defersItemViewLoading option was enabled
