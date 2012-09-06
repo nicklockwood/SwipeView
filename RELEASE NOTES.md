@@ -1,3 +1,7 @@
+Version 1.2.7
+
+- numberOfItems / numberOfPages getters now call numberOfItemsInSwipeView: dataSource method to ensure that value is correct.
+
 Version 1.2.6
 
 - SwipeView now calculates number of visible views more accurately

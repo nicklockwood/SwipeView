@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.2.6
+//  Version 1.2.7
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -690,9 +690,14 @@
     return roundf((float)_currentItemIndex / (float)_itemsPerPage);
 }
 
+- (NSInteger)numberOfItems
+{
+    return ((_numberOfItems = [_dataSource numberOfItemsInSwipeView:self]));
+}
+
 - (NSInteger)numberOfPages
 {
-    return ceilf((float)_numberOfItems / (float)_itemsPerPage);
+    return ceilf((float)self.numberOfItems / (float)_itemsPerPage);
 }
 
 - (NSInteger)minScrollDistanceFromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex
