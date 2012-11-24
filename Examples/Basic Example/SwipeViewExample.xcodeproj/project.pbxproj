@@ -16,6 +16,7 @@
 		01FA7D36145B5FCC00D118DB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 01FA7D35145B5FCC00D118DB /* AppDelegate.m */; };
 		01FA7D39145B5FCC00D118DB /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 01FA7D38145B5FCC00D118DB /* ViewController.m */; };
 		01FA7D3C145B5FCC00D118DB /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 01FA7D3A145B5FCC00D118DB /* ViewController.xib */; };
+		01FACD23166114E800B8C1A0 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 01FACD22166114E800B8C1A0 /* Default-568h@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		01FA7D37145B5FCC00D118DB /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		01FA7D38145B5FCC00D118DB /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		01FA7D3B145B5FCC00D118DB /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController.xib; sourceTree = "<group>"; };
+		01FACD22166114E800B8C1A0 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +106,7 @@
 		01FA7D2C145B5FCC00D118DB /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				01FACD22166114E800B8C1A0 /* Default-568h@2x.png */,
 				01FA7D2D145B5FCC00D118DB /* SwipeViewExample-Info.plist */,
 				01FA7D2E145B5FCC00D118DB /* InfoPlist.strings */,
 				01FA7D31145B5FCC00D118DB /* main.m */,
@@ -164,6 +167,7 @@
 			files = (
 				01FA7D30145B5FCC00D118DB /* InfoPlist.strings in Resources */,
 				01FA7D3C145B5FCC00D118DB /* ViewController.xib in Resources */,
+				01FACD23166114E800B8C1A0 /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -218,11 +222,13 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -235,12 +241,14 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};

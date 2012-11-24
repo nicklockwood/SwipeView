@@ -1,7 +1,7 @@
 //
 //  SwipeView.h
 //
-//  Version 1.2.7
+//  Version 1.2.8
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -30,47 +30,19 @@
 //  3. This notice may not be removed or altered from any source distribution.
 //
 
-//
-//  ARC Helper
-//
-//  Version 2.1
-//
-//  Created by Nick Lockwood on 05/01/2012.
-//  Copyright 2012 Charcoal Design
-//
-//  Distributed under the permissive zlib license
-//  Get the latest version from here:
-//
-//  https://gist.github.com/1563325
-//
-
-#ifndef ah_retain
-#if __has_feature(objc_arc)
-#define ah_retain self
-#define ah_dealloc self
-#define release self
-#define autorelease self
-#else
-#define ah_retain retain
-#define ah_dealloc dealloc
-#define __bridge
-#endif
-#endif
-
-//  Weak reference support
 
 #import <Availability.h>
-#if (defined __IPHONE_OS_VERSION_MIN_REQUIRED && \
-__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_5_0) || \
-(defined __MAC_OS_X_VERSION_MIN_REQUIRED && \
-__MAC_OS_X_VERSION_MIN_REQUIRED < __MAC_10_7)
-#undef weak
-#define weak unsafe_unretained
-#undef __weak
-#define __weak __unsafe_unretained
+#undef weak_delegate
+#undef __weak_delegate
+#if __has_feature(objc_arc_weak) && \
+(!(defined __MAC_OS_X_VERSION_MIN_REQUIRED) || \
+__MAC_OS_X_VERSION_MIN_REQUIRED >= __MAC_10_8)
+#define weak_delegate weak
+#define __weak_delegate __weak
+#else
+#define weak_delegate unsafe_unretained
+#define __weak_delegate __unsafe_unretained
 #endif
-
-//  ARC Helper ends
 
 
 #import <UIKit/UIKit.h>
@@ -88,8 +60,8 @@ SwipeViewAlignment;
 
 @interface SwipeView : UIView
 
-@property (nonatomic, weak) IBOutlet id<SwipeViewDataSource> dataSource;
-@property (nonatomic, weak) IBOutlet id<SwipeViewDelegate> delegate;
+@property (nonatomic, weak_delegate) IBOutlet id<SwipeViewDataSource> dataSource;
+@property (nonatomic, weak_delegate) IBOutlet id<SwipeViewDelegate> delegate;
 @property (nonatomic, readonly) NSInteger numberOfItems;
 @property (nonatomic, readonly) NSInteger numberOfPages;
 @property (nonatomic, readonly) CGSize itemSize;

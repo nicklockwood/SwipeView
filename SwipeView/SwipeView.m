@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.2.7
+//  Version 1.2.8
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -30,6 +30,35 @@
 //  3. This notice may not be removed or altered from any source distribution.
 //
 
+//
+//  ARC Helper
+//
+//  Version 2.1
+//
+//  Created by Nick Lockwood on 05/01/2012.
+//  Copyright 2012 Charcoal Design
+//
+//  Distributed under the permissive zlib license
+//  Get the latest version from here:
+//
+//  https://gist.github.com/1563325
+//
+
+#ifndef ah_retain
+#if __has_feature(objc_arc)
+#define ah_retain self
+#define ah_dealloc self
+#define release self
+#define autorelease self
+#else
+#define ah_retain retain
+#define ah_dealloc dealloc
+#define __bridge
+#endif
+#endif
+
+//  ARC Helper ends
+
 
 #import "SwipeView.h"
 
@@ -57,37 +86,7 @@
 
 @implementation SwipeView
 
-@synthesize itemSize = _itemSize;
-@synthesize itemsPerPage = _itemsPerPage;
-@synthesize truncateFinalPage = _truncateFinalPage;
-@synthesize alignment = _alignment;
-@synthesize previousItemIndex = _previousItemIndex;
-@synthesize previousContentOffset = _previousContentOffset;
-@synthesize scrollOffset = _scrollOffset;
-@synthesize itemViews = _itemViews;
-@synthesize itemViewPool = _itemViewPool;
-@synthesize scrollView = _scrollView;
-@synthesize dataSource = _dataSource;
-@synthesize delegate = _delegate;
 @synthesize numberOfItems = _numberOfItems;
-@synthesize pagingEnabled = _pagingEnabled;
-@synthesize scrollEnabled = _scrollEnabled;
-@synthesize delaysContentTouches = _delaysContentTouches;
-@synthesize bounces = _bounces;
-@synthesize wrapEnabled = _wrapEnabled;
-@synthesize decelerationRate = _decelerationRate;
-@synthesize suppressScrollEvent = _suppressScrollEvent;
-@synthesize scrollDuration = _scrollDuration;
-@synthesize scrolling = _scrolling;
-@synthesize startTime = _startTime;
-@synthesize startOffset = _startOffset;
-@synthesize endOffset = _endOffset;
-@synthesize lastUpdateOffset = _lastUpdateOffset;
-@synthesize currentItemIndex = _currentItemIndex;
-@synthesize timer = _timer;
-@synthesize defersItemViewLoading = _defersItemViewLoading;
-@synthesize vertical = _vertical;
-
 
 #pragma mark -
 #pragma mark Initialisation
@@ -862,12 +861,8 @@
     }
     else if (_numberOfItems > 0)
     {
-        if ([_itemViews count] == 0)
-        {
-            [self loadViewAtIndex:0];
-        }
-        UIView *itemView = [[_itemViews allValues] lastObject];
-        _itemSize = itemView.frame.size;
+        UIView *view = [[self visibleItemViews] lastObject] ?: [_dataSource swipeView:self viewForItemAtIndex:0 reusingView:[self dequeueItemView]];
+        _itemSize = view.frame.size;
     }
 }
 

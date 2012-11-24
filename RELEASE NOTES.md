@@ -1,3 +1,8 @@
+Version 1.2.8
+
+- Fixed bug in the logic for automatically caluclating item size
+- Moved ARCHelper macros out of .h file so they do not affect non-ARC code in other classes
+
 Version 1.2.7
 
 - numberOfItems / numberOfPages getters now call numberOfItemsInSwipeView: dataSource method to ensure that value is correct.
