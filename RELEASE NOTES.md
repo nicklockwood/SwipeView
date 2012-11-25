@@ -1,6 +1,7 @@
 Version 1.2.8
 
 - Fixed bug in the logic for automatically caluclating item size
+- Fixed bug where last visible view was sometimes not draw in non-wrapped mode
 - Moved ARCHelper macros out of .h file so they do not affect non-ARC code in other classes
 
 Version 1.2.7

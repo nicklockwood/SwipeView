@@ -875,7 +875,7 @@
     itemWidth = itemWidth ?: width;
     
     //calculate range
-    CGFloat startOffset = _scrollOffset - x / itemWidth;
+    CGFloat startOffset = [self clampedOffset:_scrollOffset - x / itemWidth];
     NSInteger startIndex = floorf(startOffset);
     NSInteger numberOfVisibleItems =  ceilf(width / itemWidth + (startOffset - startIndex));
     if (_defersItemViewLoading)
@@ -892,7 +892,7 @@
         NSInteger index = [self clampedIndex:i + startIndex];
         [visibleIndices addObject:[NSNumber numberWithInteger:index]];
     }
-    
+
     //remove offscreen views
     for (NSNumber *number in [_itemViews allKeys])
     {
