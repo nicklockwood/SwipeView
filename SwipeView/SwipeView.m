@@ -868,50 +868,53 @@
 
 - (void)loadUnloadViews
 {
-    //calculate visible view indices
-    CGFloat width = _vertical? self.bounds.size.height: self.bounds.size.width;
-    CGFloat x = _vertical? _scrollView.frame.origin.y: _scrollView.frame.origin.x;
+    //check that item size is known
     CGFloat itemWidth = _vertical? _itemSize.height: _itemSize.width;
-    itemWidth = itemWidth ?: width;
-    
-    //calculate range
-    CGFloat startOffset = [self clampedOffset:_scrollOffset - x / itemWidth];
-    NSInteger startIndex = floorf(startOffset);
-    NSInteger numberOfVisibleItems =  ceilf(width / itemWidth + (startOffset - startIndex));
-    if (_defersItemViewLoading)
+    if (itemWidth)
     {
-        startIndex = _currentItemIndex - ceilf(x / itemWidth) - 1;
-        numberOfVisibleItems = ceilf(width / itemWidth) + 3;
-    }
-    
-    //create indices
-    numberOfVisibleItems = MIN(numberOfVisibleItems, _numberOfItems);
-    NSMutableSet *visibleIndices = [NSMutableSet setWithCapacity:numberOfVisibleItems];
-    for (NSInteger i = 0; i < numberOfVisibleItems; i++)
-    {
-        NSInteger index = [self clampedIndex:i + startIndex];
-        [visibleIndices addObject:[NSNumber numberWithInteger:index]];
-    }
+        //calculate offset and bounds
+        CGFloat width = _vertical? self.bounds.size.height: self.bounds.size.width;
+        CGFloat x = _vertical? _scrollView.frame.origin.y: _scrollView.frame.origin.x;
+        
+        //calculate range
+        CGFloat startOffset = [self clampedOffset:_scrollOffset - x / itemWidth];
+        NSInteger startIndex = floorf(startOffset);
+        NSInteger numberOfVisibleItems =  ceilf(width / itemWidth + (startOffset - startIndex));
+        if (_defersItemViewLoading)
+        {
+            startIndex = _currentItemIndex - ceilf(x / itemWidth) - 1;
+            numberOfVisibleItems = ceilf(width / itemWidth) + 3;
+        }
+        
+        //create indices
+        numberOfVisibleItems = MIN(numberOfVisibleItems, _numberOfItems);
+        NSMutableSet *visibleIndices = [NSMutableSet setWithCapacity:numberOfVisibleItems];
+        for (NSInteger i = 0; i < numberOfVisibleItems; i++)
+        {
+            NSInteger index = [self clampedIndex:i + startIndex];
+            [visibleIndices addObject:[NSNumber numberWithInteger:index]];
+        }
 
-    //remove offscreen views
-    for (NSNumber *number in [_itemViews allKeys])
-    {
-        if (![visibleIndices containsObject:number])
+        //remove offscreen views
+        for (NSNumber *number in [_itemViews allKeys])
+        {
+            if (![visibleIndices containsObject:number])
+            {
+                UIView *view = [_itemViews objectForKey:number];
+                [self queueItemView:view];
+                [view removeFromSuperview];
+                [_itemViews removeObjectForKey:number];
+            }
+        }
+        
+        //add onscreen views
+        for (NSNumber *number in visibleIndices)
         {
             UIView *view = [_itemViews objectForKey:number];
-            [self queueItemView:view];
-            [view removeFromSuperview];
-            [_itemViews removeObjectForKey:number];
-        }
-    }
-    
-    //add onscreen views
-    for (NSNumber *number in visibleIndices)
-    {
-        UIView *view = [_itemViews objectForKey:number];
-        if (view == nil)
-        {
-            [self loadViewAtIndex:[number integerValue]];
+            if (view == nil)
+            {
+                [self loadViewAtIndex:[number integerValue]];
+            }
         }
     }
 }
