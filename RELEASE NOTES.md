@@ -1,6 +1,10 @@
+Version 1.2.9
+
+- Fixed tap handling when wrap is enabled
+
 Version 1.2.8
 
-- Fixed bounds error when swipe viw size is zero
+- Fixed bounds error when swipe view size is zero
 - Fixed bug in the logic for automatically calculating item size
 - Fixed bug where last visible view was sometimes not draw in non-wrapped mode
 - Moved ARCHelper macros out of .h file so they do not affect non-ARC code in other classes

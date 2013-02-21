@@ -9,7 +9,7 @@ SwipeView's interface and implementation is based on the iCarousel library, and 
 Supported OS & SDK Versions
 -----------------------------
 
-* Supported build target - iOS 6.0 (Xcode 4.5, Apple LLVM compiler 4.1)
+* Supported build target - iOS 6.1 (Xcode 4.6, Apple LLVM compiler 4.2)
 * Earliest supported deployment target - iOS 5.0
 * Earliest compatible deployment target - iOS 4.3
 

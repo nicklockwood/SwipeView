@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.2.8
+//  Version 1.2.9
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -1050,6 +1050,10 @@
 {
     CGPoint point = [tapGesture locationInView:_scrollView];
     NSInteger index = _vertical? (point.y / (_itemSize.height)): (point.x / (_itemSize.width));
+    if (_wrapEnabled)
+    {
+        index = index % _numberOfItems;
+    }
     if (index >= 0 && index < _numberOfItems)
     {
         if ([_delegate respondsToSelector:@selector(swipeView:didSelectItemAtIndex:)])

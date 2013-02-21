@@ -1,7 +1,7 @@
 //
 //  SwipeView.h
 //
-//  Version 1.2.8
+//  Version 1.2.9
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -33,15 +33,10 @@
 
 #import <Availability.h>
 #undef weak_delegate
-#undef __weak_delegate
-#if __has_feature(objc_arc_weak) && \
-(!(defined __MAC_OS_X_VERSION_MIN_REQUIRED) || \
-__MAC_OS_X_VERSION_MIN_REQUIRED >= __MAC_10_8)
+#if __has_feature(objc_arc_weak)
 #define weak_delegate weak
-#define __weak_delegate __weak
 #else
 #define weak_delegate unsafe_unretained
-#define __weak_delegate __unsafe_unretained
 #endif
 
 
