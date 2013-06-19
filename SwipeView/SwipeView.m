@@ -159,6 +159,7 @@
 - (void)dealloc
 {
     [_timer invalidate];
+    [_timer ah_release];
     [_scrollView ah_release];
     [_itemViews ah_release];
     [_itemViewPool ah_release];
