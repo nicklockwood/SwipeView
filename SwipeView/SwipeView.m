@@ -634,6 +634,10 @@
                                                 selector:@selector(step)
                                                 userInfo:nil
                                                  repeats:YES];
+        
+        NSRunLoop *runloop = [NSRunLoop currentRunLoop];
+        [runloop addTimer:_timer forMode:NSRunLoopCommonModes];
+        [runloop addTimer:_timer forMode:UITrackingRunLoopMode];
     }
 }
 
