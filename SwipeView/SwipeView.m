@@ -524,6 +524,7 @@
 
 - (void)layoutSubviews
 {
+    [super layoutSubviews];
     [self updateLayout];
     [self performSelectorOnMainThread:@selector(updateLayout) withObject:nil waitUntilDone:NO];
 }
