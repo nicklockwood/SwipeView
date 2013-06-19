@@ -92,7 +92,7 @@
     }
     
     //configure view
-    label.backgroundColor = [self.colors objectAtIndex:index];
+    label.backgroundColor = (self.colors)[index];
     label.text = [NSString stringWithFormat:@"%i", index];
     
     //return view

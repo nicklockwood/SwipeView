@@ -1,3 +1,8 @@
+Version 1.2.10
+
+- Fixed confict between SwipeView animation and UIScrollView scrolling
+- Fixed issue due to missing [super layoutSubviews]
+
 Version 1.2.9
 
 - Fixed tap handling when wrap is enabled

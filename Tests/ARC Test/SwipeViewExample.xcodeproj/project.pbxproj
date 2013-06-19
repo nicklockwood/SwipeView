@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0108F4A617724B050081F592 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0108F4A517724B050081F592 /* Default-568h@2x.png */; };
 		019466E115B312AA00B9CA30 /* SwipeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 019466E015B312AA00B9CA30 /* SwipeView.m */; };
 		01FA7D26145B5FCC00D118DB /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FA7D25145B5FCC00D118DB /* UIKit.framework */; };
 		01FA7D28145B5FCC00D118DB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FA7D27145B5FCC00D118DB /* Foundation.framework */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0108F4A517724B050081F592 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		019466DF15B312AA00B9CA30 /* SwipeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwipeView.h; sourceTree = "<group>"; };
 		019466E015B312AA00B9CA30 /* SwipeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SwipeView.m; sourceTree = "<group>"; };
 		01FA7D21145B5FCC00D118DB /* SwipeViewExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwipeViewExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -104,6 +106,7 @@
 		01FA7D2C145B5FCC00D118DB /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				0108F4A517724B050081F592 /* Default-568h@2x.png */,
 				01FA7D2D145B5FCC00D118DB /* SwipeViewExample-Info.plist */,
 				01FA7D2E145B5FCC00D118DB /* InfoPlist.strings */,
 				01FA7D31145B5FCC00D118DB /* main.m */,
@@ -138,7 +141,7 @@
 		01FA7D18145B5FCB00D118DB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0460;
 			};
 			buildConfigurationList = 01FA7D1B145B5FCB00D118DB /* Build configuration list for PBXProject "SwipeViewExample" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -164,6 +167,7 @@
 			files = (
 				01FA7D30145B5FCC00D118DB /* InfoPlist.strings in Resources */,
 				01FA7D3C145B5FCC00D118DB /* ViewController.xib in Resources */,
+				0108F4A617724B050081F592 /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -208,6 +212,10 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -221,6 +229,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				SDKROOT = iphoneos;
@@ -232,12 +241,17 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";

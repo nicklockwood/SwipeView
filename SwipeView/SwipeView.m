@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.2.9
+//  Version 1.2.10
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -48,11 +48,13 @@
 #if __has_feature(objc_arc)
 #define ah_retain self
 #define ah_dealloc self
-#define release self
-#define autorelease self
+#define ah_release self
+#define ah_autorelease self
 #else
 #define ah_retain retain
 #define ah_dealloc dealloc
+#define ah_release release
+#define ah_autorelease autorelease
 #define __bridge
 #endif
 #endif
@@ -79,7 +81,7 @@
 @property (nonatomic, assign) CGFloat startOffset;
 @property (nonatomic, assign) CGFloat endOffset;
 @property (nonatomic, assign) CGFloat lastUpdateOffset;
-@property (nonatomic, unsafe_unretained) NSTimer *timer;
+@property (nonatomic, strong) NSTimer *timer;
 
 @end
 
@@ -128,7 +130,7 @@
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
     tapGesture.delegate = self;
     [_scrollView addGestureRecognizer:tapGesture];
-    [tapGesture release];
+    [tapGesture ah_release];
     
     self.clipsToBounds = YES;
     
@@ -157,9 +159,9 @@
 - (void)dealloc
 {
     [_timer invalidate];
-    [_scrollView release];
-    [_itemViews release];
-    [_itemViewPool release];
+    [_scrollView ah_release];
+    [_itemViews ah_release];
+    [_itemViewPool ah_release];
     [super ah_dealloc];
 }
 
@@ -304,7 +306,7 @@
 
 - (UIView *)itemViewAtIndex:(NSInteger)index
 {
-    return [_itemViews objectForKey:[NSNumber numberWithInteger:index]];
+    return _itemViews[@(index)];
 }
 
 - (UIView *)currentItemView
@@ -317,7 +319,7 @@
     NSInteger index = [[_itemViews allValues] indexOfObject:view];
     if (index != NSNotFound)
     {
-        return [[[_itemViews allKeys] objectAtIndex:index] integerValue];
+        return [[_itemViews allKeys][index] integerValue];
     }
     return NSNotFound;
 }
@@ -334,7 +336,7 @@
 
 - (void)setItemView:(UIView *)view forIndex:(NSInteger)index
 {
-    [(NSMutableDictionary *)_itemViews setObject:view forKey:[NSNumber numberWithInteger:index]];
+    ((NSMutableDictionary *)_itemViews)[@(index)] = view;
 }
 
 
@@ -547,7 +549,7 @@
     {
         [_itemViewPool removeObject:view];
     }
-    return [view autorelease];
+    return [view ah_autorelease];
 }
 
 
@@ -629,22 +631,21 @@
 {
     if (!_timer)
     {
-        _timer = [NSTimer scheduledTimerWithTimeInterval:1.0/60.0
-                                                  target:self
-                                                selector:@selector(step)
-                                                userInfo:nil
-                                                 repeats:YES];
+        self.timer = [NSTimer timerWithTimeInterval:1.0/60.0
+                                             target:self
+                                           selector:@selector(step)
+                                           userInfo:nil
+                                            repeats:YES];
         
-        NSRunLoop *runloop = [NSRunLoop currentRunLoop];
-        [runloop addTimer:_timer forMode:NSRunLoopCommonModes];
-        [runloop addTimer:_timer forMode:UITrackingRunLoopMode];
+        [[NSRunLoop mainRunLoop] addTimer:_timer forMode:NSDefaultRunLoopMode];
+        [[NSRunLoop mainRunLoop] addTimer:_timer forMode:UITrackingRunLoopMode];
     }
 }
 
 - (void)stopAnimation
 {
     [_timer invalidate];
-    _timer = nil;
+    self.timer = nil;
 }
 
 - (NSInteger)clampedIndex:(NSInteger)index
@@ -837,7 +838,7 @@
     UIView *view = [_dataSource swipeView:self viewForItemAtIndex:index reusingView:[self dequeueItemView]];
     if (view == nil)
     {
-        view = [[[UIView alloc] init] autorelease];
+        view = [[[UIView alloc] init] ah_autorelease];
     }
     
     UIView *oldView = [self itemViewAtIndex:index];
@@ -897,7 +898,7 @@
         for (NSInteger i = 0; i < numberOfVisibleItems; i++)
         {
             NSInteger index = [self clampedIndex:i + startIndex];
-            [visibleIndices addObject:[NSNumber numberWithInteger:index]];
+            [visibleIndices addObject:@(index)];
         }
 
         //remove offscreen views
@@ -905,7 +906,7 @@
         {
             if (![visibleIndices containsObject:number])
             {
-                UIView *view = [_itemViews objectForKey:number];
+                UIView *view = _itemViews[number];
                 [self queueItemView:view];
                 [view removeFromSuperview];
                 [_itemViews removeObjectForKey:number];
@@ -915,7 +916,7 @@
         //add onscreen views
         for (NSNumber *number in visibleIndices)
         {
-            UIView *view = [_itemViews objectForKey:number];
+            UIView *view = _itemViews[number];
             if (view == nil)
             {
                 [self loadViewAtIndex:[number integerValue]];
