@@ -1,3 +1,12 @@
+Version 1.3 beta
+
+- SwipeView now requires ARC (see README for details)
+- The scrollOffset property is now public
+- Added scrollByOffset:duration: and scrollToOffset:duration: methods
+- Calling reloadData no longer resets scroll position
+- Fixed crash on iOS 7
+- SwipeView no longer behaves strangely if there is only one item and wrap is enabled
+
 Version 1.2.10
 
 - Fixed confict between SwipeView animation and UIScrollView scrolling

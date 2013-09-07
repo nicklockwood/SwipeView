@@ -18,18 +18,15 @@
 
 @implementation ViewController
 
-@synthesize swipeView = _swipeView;
-@synthesize colors = _colors;
-
 - (IBAction)reload
 {
     //set up colors
     self.colors = [NSMutableArray array];
-    for (int i = 0; i < (rand()/(float)RAND_MAX) * 1000; i++)
+    for (int i = 0; i < arc4random_uniform(1000) + 2; i++)
     {
-        [self.colors addObject:[UIColor colorWithRed:rand()/(float)RAND_MAX
-                                               green:rand()/(float)RAND_MAX
-                                                blue:rand()/(float)RAND_MAX
+        [self.colors addObject:[UIColor colorWithRed:drand48()
+                                               green:drand48()
+                                                blue:drand48()
                                                alpha:1.0f]];
     }
     

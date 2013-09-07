@@ -73,7 +73,7 @@
     //create or reuse view
     if (view == nil)
     {
-        label = [[[UILabel alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 100.0f, 100.0f)] autorelease];
+        label = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 100.0f, 100.0f)];
         label.textAlignment = UITextAlignmentCenter;
         label.textColor = [UIColor whiteColor];
         view = label;
@@ -102,13 +102,6 @@
 {
     //update swipe view page
     [_swipeView scrollToPage:_pageControl.currentPage duration:0.4];
-}
-
-- (void)dealloc
-{
-    [_swipeView release];
-    [_colors release];
-    [super dealloc];
 }
 
 @end

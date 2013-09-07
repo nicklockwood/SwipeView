@@ -269,7 +269,7 @@
 		01FA7D40145B5FCC00D118DB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SwipeViewExample/SwipeViewExample-Prefix.pch";
 				INFOPLIST_FILE = "SwipeViewExample/SwipeViewExample-Info.plist";
@@ -282,7 +282,7 @@
 		01FA7D41145B5FCC00D118DB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SwipeViewExample/SwipeViewExample-Prefix.pch";
 				INFOPLIST_FILE = "SwipeViewExample/SwipeViewExample-Info.plist";

@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.2.10
+//  Version 1.3 beta 1
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -30,39 +30,31 @@
 //  3. This notice may not be removed or altered from any source distribution.
 //
 
-//
-//  ARC Helper
-//
-//  Version 2.1
-//
-//  Created by Nick Lockwood on 05/01/2012.
-//  Copyright 2012 Charcoal Design
-//
-//  Distributed under the permissive zlib license
-//  Get the latest version from here:
-//
-//  https://gist.github.com/1563325
-//
-
-#ifndef ah_retain
-#if __has_feature(objc_arc)
-#define ah_retain self
-#define ah_dealloc self
-#define ah_release self
-#define ah_autorelease self
-#else
-#define ah_retain retain
-#define ah_dealloc dealloc
-#define ah_release release
-#define ah_autorelease autorelease
-#define __bridge
-#endif
-#endif
-
-//  ARC Helper ends
-
 
 #import "SwipeView.h"
+#import <objc/message.h>
+
+
+#import <Availability.h>
+#if !__has_feature(objc_arc)
+#error This class requires automatic reference counting
+#endif
+
+
+@implementation NSObject (SwipeView)
+
+- (CGSize)swipeViewItemSize:(SwipeView *)swipeView { return CGSizeZero; }
+- (void)swipeViewDidScroll:(SwipeView *)swipeView {}
+- (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView {}
+- (void)swipeViewWillBeginDragging:(SwipeView *)swipeView {}
+- (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate {}
+- (void)swipeViewWillBeginDecelerating:(SwipeView *)swipeView {}
+- (void)swipeViewDidEndDecelerating:(SwipeView *)swipeView {}
+- (void)swipeViewDidEndScrollingAnimation:(SwipeView *)swipeView {}
+- (BOOL)swipeView:(SwipeView *)swipeView shouldSelectItemAtIndex:(NSInteger)index { return YES; }
+- (void)swipeView:(SwipeView *)swipeView didSelectItemAtIndex:(NSInteger)index {}
+
+@end
 
 
 @interface SwipeView () <UIScrollViewDelegate, UIGestureRecognizerDelegate>
@@ -72,7 +64,6 @@
 @property (nonatomic, strong) NSMutableSet *itemViewPool;
 @property (nonatomic, assign) NSInteger previousItemIndex;
 @property (nonatomic, assign) CGPoint previousContentOffset;
-@property (nonatomic, assign) CGFloat scrollOffset;
 @property (nonatomic, assign) CGSize itemSize;
 @property (nonatomic, assign) BOOL suppressScrollEvent;
 @property (nonatomic, assign) NSTimeInterval scrollDuration;
@@ -130,7 +121,6 @@
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
     tapGesture.delegate = self;
     [_scrollView addGestureRecognizer:tapGesture];
-    [tapGesture ah_release];
     
     self.clipsToBounds = YES;
     
@@ -159,11 +149,6 @@
 - (void)dealloc
 {
     [_timer invalidate];
-    [_timer ah_release];
-    [_scrollView ah_release];
-    [_itemViews ah_release];
-    [_itemViewPool ah_release];
-    [super ah_dealloc];
 }
 
 - (void)setDataSource:(id<SwipeViewDataSource>)dataSource
@@ -425,13 +410,14 @@
     
     if (_wrapEnabled)
     {
+        CGFloat itemsWide = (_numberOfItems == 1)? 1.0f: _numberOfItems * 3.0f;
         if (_vertical)
         {
-            contentSize.height = _itemSize.height * _numberOfItems * 3.0f;
+            contentSize.height = _itemSize.height * itemsWide;
         }
         else
         {
-            contentSize.width = _itemSize.width * _numberOfItems * 3.0f;
+            contentSize.width = _itemSize.width * itemsWide;
         }
     }
     else if (_pagingEnabled && !_truncateFinalPage)
@@ -545,12 +531,12 @@
 
 - (UIView *)dequeueItemView
 {
-    UIView *view = [[_itemViewPool anyObject] ah_retain];
+    UIView *view = [_itemViewPool anyObject];
     if (view)
     {
         [_itemViewPool removeObject:view];
     }
-    return [view ah_autorelease];
+    return view;
 }
 
 
@@ -564,11 +550,8 @@
     
     //update view
     [self layOutItemViews];
-    if ([_delegate respondsToSelector:@selector(swipeViewDidScroll:)])
-    {
-        [_delegate swipeViewDidScroll:self];
-    }
-    
+    [_delegate swipeViewDidScroll:self];
+
     if (!_defersItemViewLoading || fabsf([self minScrollDistanceFromOffset:_lastUpdateOffset toOffset:_scrollOffset]) >= 1.0f)
     {
         //update item index
@@ -582,10 +565,7 @@
         if (_previousItemIndex != _currentItemIndex)
         {
             _previousItemIndex = _currentItemIndex;
-            if ([_delegate respondsToSelector:@selector(swipeViewCurrentItemIndexDidChange:)])
-            {
-                [_delegate swipeViewCurrentItemIndexDidChange:self];
-            }
+            [_delegate swipeViewCurrentItemIndexDidChange:self];
         }
     }
 }
@@ -616,10 +596,7 @@
         {
             _scrolling = NO;
             [self didScroll];
-            if ([_delegate respondsToSelector:@selector(swipeViewDidEndScrollingAnimation:)])
-            {
-                [_delegate swipeViewDidEndScrollingAnimation:self];
-            }
+            [_delegate swipeViewDidEndScrollingAnimation:self];
         }
     }
     else
@@ -653,15 +630,11 @@
 {
     if (_wrapEnabled)
     {
-        if (_numberOfItems == 0)
-        {
-            return 0;
-        }
-        return index - floorf((CGFloat)index / (CGFloat)_numberOfItems) * _numberOfItems;
+        return _numberOfItems? (index - floorf((CGFloat)index / (CGFloat)_numberOfItems) * _numberOfItems): 0;
     }
     else
     {
-        return MIN(MAX(index, 0), _numberOfItems - 1);
+        return MIN(MAX(0, index), MAX(0, _numberOfItems - 1));
     }
 }
 
@@ -673,7 +646,7 @@
     }
     else
     {
-        return fminf(fmaxf(0.0f, offset), (CGFloat)_numberOfItems - 1.0f);
+        return fminf(fmaxf(0.0f, offset), fmaxf(0.0f, (CGFloat)_numberOfItems - 1.0f));
     }
 }
 
@@ -839,7 +812,7 @@
     UIView *view = [_dataSource swipeView:self viewForItemAtIndex:index reusingView:[self dequeueItemView]];
     if (view == nil)
     {
-        view = [[[UIView alloc] init] ah_autorelease];
+        view = [[UIView alloc] init];
     }
     
     UIView *oldView = [self itemViewAtIndex:index];
@@ -862,9 +835,10 @@
     _numberOfItems = [_dataSource numberOfItemsInSwipeView:self];
     
     //get item size
-    if ([_delegate respondsToSelector:@selector(swipeViewItemSize:)])
+    CGSize size = [_delegate swipeViewItemSize:self];
+    if (!CGSizeEqualToSize(size, CGSizeZero))
     {
-        _itemSize = [_delegate swipeViewItemSize:self];
+        _itemSize = size;
     }
     else if (_numberOfItems > 0)
     {
@@ -886,7 +860,7 @@
         //calculate range
         CGFloat startOffset = [self clampedOffset:_scrollOffset - x / itemWidth];
         NSInteger startIndex = floorf(startOffset);
-        NSInteger numberOfVisibleItems =  ceilf(width / itemWidth + (startOffset - startIndex));
+        NSInteger numberOfVisibleItems = ceilf(width / itemWidth + (startOffset - startIndex));
         if (_defersItemViewLoading)
         {
             startIndex = _currentItemIndex - ceilf(x / itemWidth) - 1;
@@ -938,16 +912,6 @@
 
 - (void)reloadData
 {
-    //reset properties
-    [self setContentOffsetWithoutEvent:CGPointZero];
-    _scrollView.contentSize = CGSizeZero;
-    _previousItemIndex = 0;
-    _scrollOffset = 0.0f;
-    _currentItemIndex = 0;
-    _lastUpdateOffset = -1.0f;
-    _itemSize = CGSizeZero;
-    _scrolling = NO;
-    
     //remove old views
     for (UIView *view in self.visibleItemViews)
     {
@@ -1015,17 +979,33 @@
     return index;
 }
 
-- (BOOL)viewOrSuperview:(UIView *)view isKindOfClass:(Class)class
+- (BOOL)viewOrSuperviewHandlesTouches:(UIView *)view
 {
-    if (view == nil || view == _scrollView)
+    //thanks to @mattjgalloway and @shaps for idea
+    //https://gist.github.com/mattjgalloway/6279363
+    //https://gist.github.com/shaps80/6279008
+    
+    Class class = [view class];
+	while (class && class != [UIView class])
     {
-        return NO;
-    }
-    else if ([view isKindOfClass:class])
+		int unsigned numberOfMethods;
+		Method *methods = class_copyMethodList(class, &numberOfMethods);
+		for (int i = 0; i < numberOfMethods; i++)
+        {
+			if (method_getName(methods[i]) == @selector(touchesBegan:withEvent:))
+            {
+				return YES;
+			}
+		}
+		class = [class superclass];
+	}
+    
+    if (view.superview)
     {
-        return YES;
+        return [self viewOrSuperviewHandlesTouches:view.superview];
     }
-    return [self viewOrSuperview:view.superview isKindOfClass:class];
+    
+	return NO;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gesture shouldReceiveTouch:(UITouch *)touch
@@ -1036,21 +1016,18 @@
         NSInteger index = [self viewOrSuperviewIndex:touch.view];
         if (index != NSNotFound)
         {
-            if ([_delegate respondsToSelector:@selector(swipeView:shouldSelectItemAtIndex:)])
-            {
-                if (![_delegate swipeView:self shouldSelectItemAtIndex:index])
-                {
-                    return NO;
-                }
-            }
-            if ([self viewOrSuperview:touch.view isKindOfClass:[UIControl class]] ||
-                [self viewOrSuperview:touch.view isKindOfClass:[UITableViewCell class]])
+            if (![_delegate swipeView:self shouldSelectItemAtIndex:index] ||
+                [self viewOrSuperviewHandlesTouches:touch.view])
             {
                 return NO;
             }
+            else
+            {
+                return YES;
+            }
         }
     }
-    return YES;
+    return NO;
 }
 
 - (void)didTap:(UITapGestureRecognizer *)tapGesture
@@ -1063,10 +1040,7 @@
     }
     if (index >= 0 && index < _numberOfItems)
     {
-        if ([_delegate respondsToSelector:@selector(swipeView:didSelectItemAtIndex:)])
-        {
-            [_delegate swipeView:self didSelectItemAtIndex:index];
-        }
+        [_delegate swipeView:self didSelectItemAtIndex:index];
     }
 }
 
@@ -1097,10 +1071,7 @@
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    if ([_delegate respondsToSelector:@selector(swipeViewWillBeginDragging:)])
-    {
-        [_delegate swipeViewWillBeginDragging:self];
-    }
+    [_delegate swipeViewWillBeginDragging:self];
     
     //force refresh
     _lastUpdateOffset = self.scrollOffset - 1.0f;
@@ -1115,18 +1086,12 @@
         _lastUpdateOffset = self.scrollOffset - 1.0f;
         [self didScroll];
     }
-    if ([_delegate respondsToSelector:@selector(swipeViewDidEndDragging:willDecelerate:)])
-    {
-        [_delegate swipeViewDidEndDragging:self willDecelerate:decelerate];
-    }
+    [_delegate swipeViewDidEndDragging:self willDecelerate:decelerate];
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
 {
-    if ([_delegate respondsToSelector:@selector(swipeViewWillBeginDecelerating:)])
-    {
-        [_delegate swipeViewWillBeginDecelerating:self];
-    }
+    [_delegate swipeViewWillBeginDecelerating:self];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
@@ -1142,10 +1107,7 @@
     _lastUpdateOffset = self.scrollOffset - 1.0f;
     [self didScroll];
     
-    if ([_delegate respondsToSelector:@selector(swipeViewDidEndDecelerating:)])
-    {
-        [_delegate swipeViewDidEndDecelerating:self];
-    }
+    [_delegate swipeViewDidEndDecelerating:self];
 }
 
 @end

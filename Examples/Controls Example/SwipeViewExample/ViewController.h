@@ -13,7 +13,7 @@
 @interface ViewController : UIViewController <SwipeViewDelegate, SwipeViewDataSource>
 
 @property (nonatomic, strong) IBOutlet SwipeView *swipeView;
-@property (nonatomic, retain) IBOutlet UILabel *label;
+@property (nonatomic, strong) IBOutlet UILabel *label;
 
 - (IBAction)pressedButton:(id)sender;
 - (IBAction)toggledSwitch:(id)sender;

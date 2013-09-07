@@ -1,7 +1,7 @@
 //
 //  SwipeView.h
 //
-//  Version 1.2.10
+//  Version 1.3 beta 1
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -33,7 +33,7 @@
 
 #import <Availability.h>
 #undef weak_delegate
-#if __has_feature(objc_arc_weak)
+#if __has_feature(objc_arc) && __has_feature(objc_arc_weak)
 #define weak_delegate weak
 #else
 #define weak_delegate unsafe_unretained
@@ -68,6 +68,7 @@ SwipeViewAlignment;
 @property (nonatomic, assign) NSInteger currentItemIndex;
 @property (nonatomic, assign) NSInteger currentPage;
 @property (nonatomic, assign) SwipeViewAlignment alignment;
+@property (nonatomic, assign) CGFloat scrollOffset;
 @property (nonatomic, assign, getter = isPagingEnabled) BOOL pagingEnabled;
 @property (nonatomic, assign, getter = isScrollEnabled) BOOL scrollEnabled;
 @property (nonatomic, assign, getter = isWrapEnabled) BOOL wrapEnabled;
@@ -82,6 +83,8 @@ SwipeViewAlignment;
 
 - (void)reloadData;
 - (void)reloadItemAtIndex:(NSInteger)index;
+- (void)scrollByOffset:(CGFloat)offset duration:(NSTimeInterval)duration;
+- (void)scrollToOffset:(CGFloat)offset duration:(NSTimeInterval)duration;
 - (void)scrollByNumberOfItems:(NSInteger)itemCount duration:(NSTimeInterval)duration;
 - (void)scrollToItemAtIndex:(NSInteger)index duration:(NSTimeInterval)duration;
 - (void)scrollToPage:(NSInteger)page duration:(NSTimeInterval)duration;

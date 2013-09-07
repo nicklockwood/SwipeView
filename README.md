@@ -189,7 +189,7 @@ Return a view to be displayed at the specified index in the SwipeView. The `reus
 
 The SwipeViewDelegate protocol has the following optional methods:
 
-    - (CGFloat)swipeViewItemSize:(SwipeView *)swipeView;
+    - (CGSize)swipeViewItemSize:(SwipeView *)swipeView;
 
 Returns the size in points/pixels of each item view. If this method is not implemented, the item size is automatically calculated from the first item view that is loaded.
 
