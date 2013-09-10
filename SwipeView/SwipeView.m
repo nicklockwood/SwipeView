@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.3 beta 1
+//  Version 1.3 beta 2
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -824,6 +824,7 @@
     
     [self setItemView:view forIndex:index];
     [self setFrameForView:view atIndex:index];
+    view.userInteractionEnabled = YES;
     [_scrollView addSubview:view];
     
     return view;
@@ -1000,12 +1001,17 @@
 		class = [class superclass];
 	}
     
-    if (view.superview)
+    if (view.superview && view.superview != _scrollView)
     {
         return [self viewOrSuperviewHandlesTouches:view.superview];
     }
     
 	return NO;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return NO;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gesture shouldReceiveTouch:(UITouch *)touch
@@ -1016,7 +1022,7 @@
         NSInteger index = [self viewOrSuperviewIndex:touch.view];
         if (index != NSNotFound)
         {
-            if (![_delegate swipeView:self shouldSelectItemAtIndex:index] ||
+            if ((_delegate && ![_delegate swipeView:self shouldSelectItemAtIndex:index]) ||
                 [self viewOrSuperviewHandlesTouches:touch.view])
             {
                 return NO;
