@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.3 beta 2
+//  Version 1.3 beta 3
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -79,8 +79,6 @@
 
 @implementation SwipeView
 
-@synthesize numberOfItems = _numberOfItems;
-
 #pragma mark -
 #pragma mark Initialisation
 
@@ -126,6 +124,11 @@
     
     //place scrollview at bottom of hierarchy
     [self insertSubview:_scrollView atIndex:0];
+    
+    if (_dataSource)
+    {
+        [self reloadData];
+    }
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder
@@ -333,9 +336,10 @@
 {
     if (_wrapEnabled)
     {
+        CGFloat itemsWide = (_numberOfItems == 1)? 1.0f: 3.0f;
         if (_vertical)
         {
-            CGFloat scrollHeight = _scrollView.contentSize.height / 3.0f;
+            CGFloat scrollHeight = _scrollView.contentSize.height / itemsWide;
             if (_scrollView.contentOffset.y < scrollHeight)
             {
                 _previousContentOffset.y += scrollHeight;
@@ -350,7 +354,7 @@
         }
         else
         {
-            CGFloat scrollWidth = _scrollView.contentSize.width / 3.0f;
+            CGFloat scrollWidth = _scrollView.contentSize.width / itemsWide;
             if (_scrollView.contentOffset.x < scrollWidth)
             {
                 _previousContentOffset.x += scrollWidth;
@@ -669,11 +673,6 @@
     return roundf((float)_currentItemIndex / (float)_itemsPerPage);
 }
 
-- (NSInteger)numberOfItems
-{
-    return ((_numberOfItems = [_dataSource numberOfItemsInSwipeView:self]));
-}
-
 - (NSInteger)numberOfPages
 {
     return ceilf((float)self.numberOfItems / (float)_itemsPerPage);
@@ -919,12 +918,21 @@
         [view removeFromSuperview];
     }
     
+    //get number of items
+    _numberOfItems = [_dataSource numberOfItemsInSwipeView:self];
+    
     //reset view pools
     self.itemViews = [NSMutableDictionary dictionary];
     self.itemViewPool = [NSMutableSet set];
     
     //layout views
     [self setNeedsLayout];
+    
+    //fix scroll offset
+    if (_numberOfItems > 0 && _scrollOffset < 0.0f)
+    {
+        self.scrollOffset = 0;
+    }
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
