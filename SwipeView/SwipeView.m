@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.3 beta 3
+//  Version 1.3 beta 4
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -95,18 +95,18 @@
     _vertical = NO;
     
     _scrollView = [[UIScrollView alloc] init];
-	_scrollView.delegate = self;
-	_scrollView.delaysContentTouches = _delaysContentTouches;
+    _scrollView.delegate = self;
+    _scrollView.delaysContentTouches = _delaysContentTouches;
     _scrollView.bounces = _bounces && !_wrapEnabled;
-	_scrollView.alwaysBounceHorizontal = !_vertical && _bounces;
+    _scrollView.alwaysBounceHorizontal = !_vertical && _bounces;
     _scrollView.alwaysBounceVertical = _vertical && _bounces;
-	_scrollView.pagingEnabled = _pagingEnabled;
-	_scrollView.scrollEnabled = _scrollEnabled;
+    _scrollView.pagingEnabled = _pagingEnabled;
+    _scrollView.scrollEnabled = _scrollEnabled;
     _scrollView.decelerationRate = _decelerationRate;
-	_scrollView.showsHorizontalScrollIndicator = NO;
-	_scrollView.showsVerticalScrollIndicator = NO;
-	_scrollView.scrollsToTop = NO;
-	_scrollView.clipsToBounds = NO;
+    _scrollView.showsHorizontalScrollIndicator = NO;
+    _scrollView.showsVerticalScrollIndicator = NO;
+    _scrollView.scrollsToTop = NO;
+    _scrollView.clipsToBounds = NO;
     
     _decelerationRate = _scrollView.decelerationRate;
     _itemViews = [[NSMutableDictionary alloc] init];
@@ -171,7 +171,7 @@
     if (_delegate != delegate)
     {
         _delegate = delegate;
-		[self setNeedsLayout];
+        [self setNeedsLayout];
     }
 }
 
@@ -937,8 +937,8 @@
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
 {
-	UIView *view = [super hitTest:point withEvent:event];
-	if ([view isEqual:self])
+    UIView *view = [super hitTest:point withEvent:event];
+    if ([view isEqual:self])
     {
         for (UIView *subview in _scrollView.subviews)
         {
@@ -950,21 +950,21 @@
                 return view;
             }
         }
-		return _scrollView;
-	}
-	return view;
+        return _scrollView;
+    }
+    return view;
 }
 
 - (void)didMoveToSuperview
 {
     if (self.superview)
-	{
-		[self setNeedsLayout];
+    {
+        [self setNeedsLayout];
         if (_scrolling)
         {
             [self startAnimation];
         }
-	}
+    }
     else
     {
         [self stopAnimation];
@@ -995,26 +995,28 @@
     //https://gist.github.com/shaps80/6279008
     
     Class class = [view class];
-	while (class && class != [UIView class])
+    while (class && class != [UIView class])
     {
-		int unsigned numberOfMethods;
-		Method *methods = class_copyMethodList(class, &numberOfMethods);
-		for (int i = 0; i < numberOfMethods; i++)
+        int unsigned numberOfMethods;
+        Method *methods = class_copyMethodList(class, &numberOfMethods);
+        for (int i = 0; i < numberOfMethods; i++)
         {
-			if (method_getName(methods[i]) == @selector(touchesBegan:withEvent:))
+            if (method_getName(methods[i]) == @selector(touchesBegan:withEvent:))
             {
-				return YES;
-			}
-		}
-		class = [class superclass];
-	}
+                free(methods);
+                return YES;
+            }
+        }
+        if (methods) free(methods);
+        class = [class superclass];
+    }
     
     if (view.superview && view.superview != _scrollView)
     {
         return [self viewOrSuperviewHandlesTouches:view.superview];
     }
     
-	return NO;
+    return NO;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
