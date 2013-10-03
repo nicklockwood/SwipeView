@@ -56,17 +56,17 @@
     _pageControl.defersCurrentPageDisplay = YES;
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+- (BOOL)shouldAutorotateToInterfaceOrientation:(__unused UIInterfaceOrientation)interfaceOrientation
 {
     return YES;
 }
 
-- (NSInteger)numberOfItemsInSwipeView:(SwipeView *)swipeView
+- (NSInteger)numberOfItemsInSwipeView:(__unused SwipeView *)swipeView
 {
     return [self.colors count];
 }
 
-- (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view
+- (UIView *)swipeView:(__unused SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view
 {
     UILabel *label = (UILabel *)view;
     
@@ -93,7 +93,7 @@
     _pageControl.currentPage = swipeView.currentPage;
 }
 
-- (void)swipeView:(SwipeView *)swipeView didSelectItemAtIndex:(NSInteger)index
+- (void)swipeView:(__unused SwipeView *)swipeView didSelectItemAtIndex:(NSInteger)index
 {
     NSLog(@"Selected item at index %i", index);
 }

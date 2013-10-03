@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.3 beta 4
+//  Version 1.3 beta 5
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -43,16 +43,16 @@
 
 @implementation NSObject (SwipeView)
 
-- (CGSize)swipeViewItemSize:(SwipeView *)swipeView { return CGSizeZero; }
-- (void)swipeViewDidScroll:(SwipeView *)swipeView {}
-- (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView {}
-- (void)swipeViewWillBeginDragging:(SwipeView *)swipeView {}
-- (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate {}
-- (void)swipeViewWillBeginDecelerating:(SwipeView *)swipeView {}
-- (void)swipeViewDidEndDecelerating:(SwipeView *)swipeView {}
-- (void)swipeViewDidEndScrollingAnimation:(SwipeView *)swipeView {}
-- (BOOL)swipeView:(SwipeView *)swipeView shouldSelectItemAtIndex:(NSInteger)index { return YES; }
-- (void)swipeView:(SwipeView *)swipeView didSelectItemAtIndex:(NSInteger)index {}
+- (CGSize)swipeViewItemSize:(__unused SwipeView *)swipeView { return CGSizeZero; }
+- (void)swipeViewDidScroll:(__unused SwipeView *)swipeView {}
+- (void)swipeViewCurrentItemIndexDidChange:(__unused SwipeView *)swipeView {}
+- (void)swipeViewWillBeginDragging:(__unused SwipeView *)swipeView {}
+- (void)swipeViewDidEndDragging:(__unused SwipeView *)swipeView willDecelerate:(__unused BOOL)decelerate {}
+- (void)swipeViewWillBeginDecelerating:(__unused SwipeView *)swipeView {}
+- (void)swipeViewDidEndDecelerating:(__unused SwipeView *)swipeView {}
+- (void)swipeViewDidEndScrollingAnimation:(__unused SwipeView *)swipeView {}
+- (BOOL)swipeView:(__unused SwipeView *)swipeView shouldSelectItemAtIndex:(__unused NSInteger)index { return YES; }
+- (void)swipeView:(__unused SwipeView *)swipeView didSelectItemAtIndex:(__unused NSInteger)index {}
 
 @end
 
@@ -95,6 +95,8 @@
     _vertical = NO;
     
     _scrollView = [[UIScrollView alloc] init];
+    _scrollView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    _scrollView.autoresizesSubviews = YES;
     _scrollView.delegate = self;
     _scrollView.delaysContentTouches = _delaysContentTouches;
     _scrollView.bounces = _bounces && !_wrapEnabled;
@@ -484,17 +486,35 @@
 
 - (void)setFrameForView:(UIView *)view atIndex:(NSInteger)index
 {
-    if (!self.window) return;
-    [UIView setAnimationsEnabled:NO];
-    if (_vertical)
+    if (self.window)
     {
-        view.center = CGPointMake(_scrollView.frame.size.width/2.0f, ([self offsetForItemAtIndex:index] + 0.5f) * _itemSize.height + _scrollView.contentOffset.y);
+        CGPoint center = view.center;
+        if (_vertical)
+        {
+            center.y = ([self offsetForItemAtIndex:index] + 0.5f) * _itemSize.height + _scrollView.contentOffset.y;
+        }
+        else
+        {
+            center.x = ([self offsetForItemAtIndex:index] + 0.5f) * _itemSize.width + _scrollView.contentOffset.x;
+        }
+        
+        BOOL disableAnimation = !CGPointEqualToPoint(center, view.center);
+        BOOL animationEnabled = [UIView areAnimationsEnabled];
+        if (disableAnimation && animationEnabled) [UIView setAnimationsEnabled:NO];
+        
+        if (_vertical)
+        {
+            view.center = CGPointMake(_scrollView.frame.size.width/2.0f, center.y);
+        }
+        else
+        {
+            view.center = CGPointMake(center.x, _scrollView.frame.size.height/2.0f);
+        }
+        
+        view.bounds = CGRectMake(0.0f, 0.0f, _itemSize.width, _itemSize.height);
+        
+        if (disableAnimation && animationEnabled) [UIView setAnimationsEnabled:YES];
     }
-    else
-    {
-        view.center = CGPointMake(([self offsetForItemAtIndex:index] + 0.5f) * _itemSize.width + _scrollView.contentOffset.x, _scrollView.frame.size.height/2.0f);
-    }
-    [UIView setAnimationsEnabled:YES];
 }
 
 - (void)layOutItemViews
@@ -507,20 +527,21 @@
 
 - (void)updateLayout
 {
-    [self updateItemSizeAndCount];
-    [self updateScrollViewDimensions];
     [self updateScrollOffset];
-    [UIView setAnimationsEnabled:NO];
     [self loadUnloadViews];
-    [UIView setAnimationsEnabled:YES];
     [self layOutItemViews];
 }
 
 - (void)layoutSubviews
 {
     [super layoutSubviews];
+    [self updateItemSizeAndCount];
+    [self updateScrollViewDimensions];
     [self updateLayout];
-    [self performSelectorOnMainThread:@selector(updateLayout) withObject:nil waitUntilDone:NO];
+    if (_pagingEnabled)
+    {
+        [self scrollToItemAtIndex:self.currentItemIndex duration:0.25];
+    }
 }
 
 #pragma mark -
@@ -657,11 +678,15 @@
 
 - (void)setContentOffsetWithoutEvent:(CGPoint)contentOffset
 {
-    [UIView setAnimationsEnabled:NO];
-    _suppressScrollEvent = YES;
-    _scrollView.contentOffset = contentOffset;
-    _suppressScrollEvent = NO;
-    [UIView setAnimationsEnabled:YES];
+    if (!CGPointEqualToPoint(_scrollView.contentOffset, contentOffset))
+    {
+        BOOL animationEnabled = [UIView areAnimationsEnabled];
+        if (animationEnabled) [UIView setAnimationsEnabled:NO];
+        _suppressScrollEvent = YES;
+        _scrollView.contentOffset = contentOffset;
+        _suppressScrollEvent = NO;
+        if (animationEnabled) [UIView setAnimationsEnabled:YES];
+    }
 }
 
 - (NSInteger)currentPage
@@ -998,9 +1023,9 @@
     Class class = [view class];
     while (class && class != [UIView class])
     {
-        int unsigned numberOfMethods;
+        unsigned int numberOfMethods;
         Method *methods = class_copyMethodList(class, &numberOfMethods);
-        for (int i = 0; i < numberOfMethods; i++)
+        for (unsigned int i = 0; i < numberOfMethods; i++)
         {
             if (method_getName(methods[i]) == @selector(touchesBegan:withEvent:))
             {
@@ -1017,11 +1042,6 @@
         return [self viewOrSuperviewHandlesTouches:view.superview];
     }
     
-    return NO;
-}
-
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{
     return NO;
 }
 
@@ -1065,7 +1085,7 @@
 #pragma mark -
 #pragma mark UIScrollViewDelegate methods
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+- (void)scrollViewDidScroll:(__unused UIScrollView *)scrollView
 {
     if (!_suppressScrollEvent)
     {
@@ -1086,7 +1106,7 @@
     }
 }
 
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+- (void)scrollViewWillBeginDragging:(__unused UIScrollView *)scrollView
 {
     [_delegate swipeViewWillBeginDragging:self];
     
@@ -1095,7 +1115,7 @@
     [self didScroll];
 }
 
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+- (void)scrollViewDidEndDragging:(__unused UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if (!decelerate)
     {
@@ -1106,12 +1126,12 @@
     [_delegate swipeViewDidEndDragging:self willDecelerate:decelerate];
 }
 
-- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
+- (void)scrollViewWillBeginDecelerating:(__unused UIScrollView *)scrollView
 {
     [_delegate swipeViewWillBeginDecelerating:self];
 }
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+- (void)scrollViewDidEndDecelerating:(__unused UIScrollView *)scrollView
 {
     //prevent rounding errors from accumulating
     CGFloat integerOffset = roundf(_scrollOffset);
