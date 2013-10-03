@@ -484,6 +484,7 @@
 
 - (void)setFrameForView:(UIView *)view atIndex:(NSInteger)index
 {
+    if (!self.window) return;
     [UIView setAnimationsEnabled:NO];
     if (_vertical)
     {
