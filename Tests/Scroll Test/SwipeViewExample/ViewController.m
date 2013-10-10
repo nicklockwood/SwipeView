@@ -45,28 +45,28 @@
     
     //configure swipe view
     _swipeView.alignment = SwipeViewAlignmentCenter;
-    _swipeView.pagingEnabled = YES;
+    _swipeView.pagingEnabled = NO;
     _swipeView.wrapEnabled = NO;
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+- (BOOL)shouldAutorotateToInterfaceOrientation:(__unused UIInterfaceOrientation)interfaceOrientation
 {
     return YES;
 }
 
-- (NSInteger)numberOfItemsInSwipeView:(SwipeView *)swipeView
+- (NSInteger)numberOfItemsInSwipeView:(__unused SwipeView *)swipeView
 {
     return [self.colors count];
 }
 
-- (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view
+- (UIView *)swipeView:(__unused SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view
 {
     UILabel *label = (UILabel *)view;
     
     //create or reuse view
     if (view == nil)
     {
-        label = [[[UILabel alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 300.0f, 100.0f)] autorelease];
+        label = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 300.0f, 100.0f)];
         label.textAlignment = UITextAlignmentCenter;
         label.textColor = [UIColor whiteColor];
         view = label;
@@ -83,13 +83,6 @@
 - (IBAction)scrollToZero
 {
     [_swipeView scrollToItemAtIndex:0 duration:0.5];
-}
-
-- (void)dealloc
-{
-    [_swipeView release];
-    [_colors release];
-    [super dealloc];
 }
 
 @end
