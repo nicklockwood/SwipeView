@@ -9,7 +9,7 @@ SwipeView's interface and implementation is based on the iCarousel library, and 
 Supported OS & SDK Versions
 -----------------------------
 
-* Supported build target - iOS 6.1 (Xcode 4.6, Apple LLVM compiler 4.2)
+* Supported build target - iOS 7.0 (Xcode 5.0, Apple LLVM compiler 5.0)
 * Earliest supported deployment target - iOS 5.0
 * Earliest compatible deployment target - iOS 4.3
 
@@ -19,7 +19,9 @@ NOTE: 'Supported' means that the library has been tested with this version. 'Com
 ARC Compatibility
 ------------------
 
-SwipeView automatically works with both ARC and non-ARC projects through conditional compilation. There is no need to exclude SwipeView files from the ARC validation process, or to convert SwipeView using the ARC conversion tool.
+As of version 1.3, SwipeView requires ARC. If you wish to use SwipeView in a non-ARC project, just add the -fobjc-arc compiler flag to the SwipeView.m class. To do this, go to the Build Phases tab in your target settings, open the Compile Sources group, double-click SwipeView.m in the list and type -fobjc-arc into the popover.
+
+If you wish to convert your whole project to ARC, comment out the #error line in SwipeView.m, then run the Edit > Refactor > Convert to Objective-C ARC... tool in Xcode and make sure all files that you wish to use ARC for (including SwipeView.m) are checked.
 
 
 Thread Safety

@@ -61,8 +61,11 @@
     //configure swipe view
     _swipeView.alignment = SwipeViewAlignmentCenter;
     _swipeView.pagingEnabled = YES;
-    _swipeView.wrapEnabled = YES;
+    _swipeView.wrapEnabled = NO;
     _swipeView.truncateFinalPage = YES;
+    
+    //try scrolling immediately after load
+    [_swipeView scrollToItemAtIndex:2 duration:0.0];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
