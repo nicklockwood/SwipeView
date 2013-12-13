@@ -1,12 +1,12 @@
 Version 1.3 beta
 
 - SwipeView now requires ARC (see README for details)
+- Added autoscroll property to set SwipeView scrolling at a constant speed
 - Now supports animated item view resizing and screen rotation
 - No longer crashes sometimes on iOS 7
 - The scrollOffset property is now public
 - Added scrollByOffset:duration: and scrollToOffset:duration: methods
 - Calling reloadData no longer resets scroll position
-- Fixed crash on iOS 7
 - No longer behaves strangely if there is only one item and wrap is enabled
 - Now conforms to -Wextra warning level
 

@@ -83,7 +83,7 @@ The first item view of the currently centered (or left-aligned, depending on the
     
     @property (nonatomic, readonly) NSInteger currentItemIndex;
     
-The index of the first item of the currently centered (or left-aligned, depending on the alignment value) page. Setting this value is value is equivalent to calling `scrollToItemAtIndex:duration:` with the duration argument set to 0.0.
+The index of the first item of the currently centered (or left-aligned, depending on the alignment value) page. Setting this value is equivalent to calling `scrollToItemAtIndex:duration:` with the duration argument set to 0.0.
 
     @property (nonatomic, assign) NSInteger currentPage;
 
@@ -136,6 +136,10 @@ Returns YES if the SwipeView is currently being scrolled programatically.
     @property (nonatomic, assign) BOOL defersItemViewLoading;
 
 Sometimes when your SwipeView contains very complex item views, or large images, there can be a noticeable jerk in scrolling performance as it loads the new views. Setting the `defersItemViewLoading` property to `YES` forces the SwipeView to defer updating the currentItemIndex property and loading of new item views until after the scroll has finished. This can result in visible gaps in the SwipeView if you scroll too far in one go, but for scrolling short distances you may find that this improves animation performance.
+
+    @property (nonatomic, assign) CGFloat autoscroll;
+
+This property can be used to set the SwipeView scrolling at a constant speed. A value of 1.0 would scroll the SwipeView forwards at a rate of one item per second. The autoscroll value can be positive or negative and defaults to 0.0 (stationary). Autoscrolling will stop if the user interacts with the SwipeView, and will resume when they stop.
 	
 	
 Methods
@@ -209,7 +213,7 @@ This method is called when the SwipeView is about to start moving as the result 
     
     - (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate;
     
-This method is called when the user stops dragging the SwipeView. The willDecelerate parameter indicates whether the SwipeView is travelling fast enough that it needs to decelerate before it stops (i.e. the current index is not necessarily the one it will stop at) or if it will stop where it is. Note that even if willDecelerate is NO, the SwipeView will still scroll automatically until it aligns exactly on the current index.
+This method is called when the user stops dragging the SwipeView. The willDecelerate parameter indicates whether the SwipeView is travelling fast enough that it needs to decelerate before it stops (i.e. the current index is not necessarily the one it will stop at) or if it will stop where it is. Note that even if willDecelerate is NO, if pagin is enabled, the SwipeView will still scroll automatically until it aligns exactly on the current index.
     
     - (void)swipeViewWillBeginDecelerating:(SwipeView *)swipeView;
     

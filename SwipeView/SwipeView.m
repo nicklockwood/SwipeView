@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.3 beta 7
+//  Version 1.3 beta 8
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -69,6 +69,7 @@
 @property (nonatomic, assign) NSTimeInterval scrollDuration;
 @property (nonatomic, assign, getter = isScrolling) BOOL scrolling;
 @property (nonatomic, assign) NSTimeInterval startTime;
+@property (nonatomic, assign) NSTimeInterval lastTime;
 @property (nonatomic, assign) CGFloat startOffset;
 @property (nonatomic, assign) CGFloat endOffset;
 @property (nonatomic, assign) CGFloat lastUpdateOffset;
@@ -256,6 +257,15 @@
     {
         _decelerationRate = decelerationRate;
         _scrollView.decelerationRate = _decelerationRate;
+    }
+}
+
+- (void)setAutoscroll:(CGFloat)autoscroll
+{
+    if (_autoscroll != autoscroll)
+    {
+        _autoscroll = autoscroll;
+        if (autoscroll) [self startAnimation];
     }
 }
 
@@ -577,7 +587,7 @@
     //update view
     [self layOutItemViews];
     [_delegate swipeViewDidScroll:self];
-
+    
     if (!_defersItemViewLoading || fabsf([self minScrollDistanceFromOffset:_lastUpdateOffset toOffset:_scrollOffset]) >= 1.0f)
     {
         //update item index
@@ -603,9 +613,12 @@
 
 - (void)step
 {
+    NSTimeInterval currentTime = CFAbsoluteTimeGetCurrent();
+    double delta = _lastTime - currentTime;
+    _lastTime = currentTime;
+    
     if (_scrolling)
     {
-        NSTimeInterval currentTime = [[NSDate date] timeIntervalSinceReferenceDate];
         NSTimeInterval time = fminf(1.0f, (currentTime - _startTime) / _scrollDuration);
         CGFloat delta = [self easeInOut:time];
         _scrollOffset = [self clampedOffset:_startOffset + (_endOffset - _startOffset) * delta];
@@ -624,6 +637,10 @@
             [self didScroll];
             [_delegate swipeViewDidEndScrollingAnimation:self];
         }
+    }
+    else if (_autoscroll)
+    {
+        if (!_scrollView.dragging) self.scrollOffset = [self clampedOffset:_scrollOffset + delta * _autoscroll];
     }
     else
     {
@@ -666,14 +683,16 @@
 
 - (CGFloat)clampedOffset:(CGFloat)offset
 {
+    CGFloat returnValue = 0;
     if (_wrapEnabled)
     {
-        return _numberOfItems? (offset - floorf(offset / (CGFloat)_numberOfItems) * _numberOfItems): 0.0f;
+        returnValue = _numberOfItems? (offset - floorf(offset / (CGFloat)_numberOfItems) * _numberOfItems): 0.0f;
     }
     else
     {
-        return fminf(fmaxf(0.0f, offset), fmaxf(0.0f, (CGFloat)_numberOfItems - 1.0f));
+        returnValue = fminf(fmaxf(0.0f, offset), fmaxf(0.0f, (CGFloat)_numberOfItems - 1.0f));
     }
+    return returnValue;
 }
 
 - (void)setContentOffsetWithoutEvent:(CGPoint)contentOffset
@@ -873,6 +892,10 @@
         UIView *view = [[self visibleItemViews] lastObject] ?: [_dataSource swipeView:self viewForItemAtIndex:0 reusingView:[self dequeueItemView]];
         _itemSize = view.frame.size;
     }
+    
+    //prevent crashes
+    if (_itemSize.width < 0.0001) _itemSize.width = 1;
+    if (_itemSize.height < 0.0001) _itemSize.height = 1;
 }
 
 - (void)loadUnloadViews
@@ -903,7 +926,7 @@
             NSInteger index = [self clampedIndex:i + startIndex];
             [visibleIndices addObject:@(index)];
         }
-
+        
         //remove offscreen views
         for (NSNumber *number in [_itemViews allKeys])
         {
@@ -946,13 +969,13 @@
         [view removeFromSuperview];
     }
     
-    //get number of items
-    _numberOfItems = [_dataSource numberOfItemsInSwipeView:self];
-    
     //reset view pools
     self.itemViews = [NSMutableDictionary dictionary];
     self.itemViewPool = [NSMutableSet set];
     
+    //get number of items
+    [self updateItemSizeAndCount];
+
     //layout views
     [self setNeedsLayout];
     

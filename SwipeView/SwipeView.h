@@ -1,7 +1,7 @@
 //
 //  SwipeView.h
 //
-//  Version 1.3 beta 7
+//  Version 1.3 beta 8
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -75,6 +75,7 @@ SwipeViewAlignment;
 @property (nonatomic, assign) BOOL delaysContentTouches;
 @property (nonatomic, assign) BOOL bounces;
 @property (nonatomic, assign) float decelerationRate;
+@property (nonatomic, assign) CGFloat autoscroll;
 @property (nonatomic, readonly, getter = isDragging) BOOL dragging;
 @property (nonatomic, readonly, getter = isDecelerating) BOOL decelerating;
 @property (nonatomic, readonly, getter = isScrolling) BOOL scrolling;
