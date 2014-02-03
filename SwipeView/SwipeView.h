@@ -1,7 +1,7 @@
 //
 //  SwipeView.h
 //
-//  Version 1.3 beta 8
+//  Version 1.3
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -29,6 +29,11 @@
 //
 //  3. This notice may not be removed or altered from any source distribution.
 //
+
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wauto-import"
+#pragma GCC diagnostic ignored "-Wobjc-missing-property-synthesis"
 
 
 #import <Availability.h>
@@ -119,3 +124,7 @@ SwipeViewAlignment;
 - (void)swipeView:(SwipeView *)swipeView didSelectItemAtIndex:(NSInteger)index;
 
 @end
+
+
+#pragma GCC diagnostic pop
+

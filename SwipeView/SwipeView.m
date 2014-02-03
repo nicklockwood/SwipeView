@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.3 beta 8
+//  Version 1.3
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -33,6 +33,14 @@
 
 #import "SwipeView.h"
 #import <objc/message.h>
+
+
+#pragma GCC diagnostic ignored "-Wdirect-ivar-access"
+#pragma GCC diagnostic ignored "-Warc-repeated-use-of-weak"
+#pragma GCC diagnostic ignored "-Wreceiver-is-weak"
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wselector"
+#pragma GCC diagnostic ignored "-Wgnu"
 
 
 #import <Availability.h>
@@ -228,9 +236,12 @@
 {
     if (_wrapEnabled != wrapEnabled)
     {
+        CGFloat previousOffset = [self clampedOffset:_scrollOffset];
         _wrapEnabled = wrapEnabled;
         _scrollView.bounces = _bounces && !_wrapEnabled;
         [self setNeedsLayout];
+        [self layoutIfNeeded];
+        self.scrollOffset = previousOffset;
     }
 }
 
@@ -253,7 +264,7 @@
 
 - (void)setDecelerationRate:(float)decelerationRate
 {
-    if (_decelerationRate != decelerationRate)
+    if (fabsf(_decelerationRate - decelerationRate) > 0.0001f)
     {
         _decelerationRate = decelerationRate;
         _scrollView.decelerationRate = _decelerationRate;
@@ -262,7 +273,7 @@
 
 - (void)setAutoscroll:(CGFloat)autoscroll
 {
-    if (_autoscroll != autoscroll)
+    if (fabsf(_autoscroll - autoscroll) > 0.0001f)
     {
         _autoscroll = autoscroll;
         if (autoscroll) [self startAnimation];
@@ -317,7 +328,7 @@
 
 - (NSInteger)indexOfItemView:(UIView *)view
 {
-    NSInteger index = [[_itemViews allValues] indexOfObject:view];
+    NSUInteger index = [[_itemViews allValues] indexOfObject:view];
     if (index != NSNotFound)
     {
         return [[_itemViews allKeys][index] integerValue];
@@ -380,12 +391,30 @@
             _scrollOffset = [self clampedOffset:_scrollOffset];
         }
     }
+    if (_vertical && fabsf(_scrollView.contentOffset.x) > 0.0001f)
+    {
+        [self setContentOffsetWithoutEvent:CGPointMake(0.0f, _scrollView.contentOffset.y)];
+    }
+    else if (!_vertical && fabsf(_scrollView.contentOffset.y) > 0.0001f)
+    {
+        [self setContentOffsetWithoutEvent:CGPointMake(_scrollView.contentOffset.x, 0.0f)];
+    }
 }
 
 - (void)updateScrollViewDimensions
 {
     CGRect frame = self.bounds;
     CGSize contentSize = frame.size;
+    
+    if (_vertical)
+    {
+        contentSize.width -= (_scrollView.contentInset.left + _scrollView.contentInset.right);
+    }
+    else
+    {
+        contentSize.height -= (_scrollView.contentInset.top + _scrollView.contentInset.bottom);
+    }
+    
     switch (_alignment)
     {
         case SwipeViewAlignmentCenter:
@@ -416,10 +445,6 @@
                 frame = CGRectMake(0.0f, 0.0f, _itemSize.width * _itemsPerPage, self.frame.size.height);
                 contentSize.width = _itemSize.width * _numberOfItems - (self.frame.size.width - frame.size.width);
             }
-            break;
-        }
-        default:
-        {
             break;
         }
     }
@@ -620,7 +645,7 @@
     if (_scrolling)
     {
         NSTimeInterval time = fminf(1.0f, (currentTime - _startTime) / _scrollDuration);
-        CGFloat delta = [self easeInOut:time];
+        delta = [self easeInOut:time];
         _scrollOffset = [self clampedOffset:_startOffset + (_endOffset - _startOffset) * delta];
         if (_vertical)
         {
@@ -769,7 +794,7 @@
 
 - (void)setScrollOffset:(CGFloat)scrollOffset
 {
-    if (_scrollOffset != scrollOffset)
+    if (fabsf(_scrollOffset - scrollOffset) > 0.0001f)
     {
         _scrollOffset = scrollOffset;
         _lastUpdateOffset = _scrollOffset - 1.0f; //force refresh

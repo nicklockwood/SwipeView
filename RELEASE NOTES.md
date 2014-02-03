@@ -1,4 +1,4 @@
-Version 1.3 beta
+Version 1.3
 
 - SwipeView now requires ARC (see README for details)
 - Added autoscroll property to set SwipeView scrolling at a constant speed
@@ -8,7 +8,9 @@ Version 1.3 beta
 - Added scrollByOffset:duration: and scrollToOffset:duration: methods
 - Calling reloadData no longer resets scroll position
 - No longer behaves strangely if there is only one item and wrap is enabled
-- Now conforms to -Wextra warning level
+- Fixed problems with contentOffset when used inside UINavigationController
+- You can now toggle wrapEnabled at any time without messing up item views
+- Now conforms to -Weverything warning level
 
 Version 1.2.10
 
