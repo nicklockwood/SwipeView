@@ -1,7 +1,7 @@
 //
 //  SwipeView.h
 //
-//  Version 1.3
+//  Version 1.3.1
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -48,12 +48,11 @@
 #import <UIKit/UIKit.h>
 
 
-typedef enum
+typedef NS_ENUM(NSUInteger, SwipeViewAlignment)
 {
     SwipeViewAlignmentEdge = 0,
     SwipeViewAlignmentCenter
-}
-SwipeViewAlignment;
+};
 
 
 @protocol SwipeViewDataSource, SwipeViewDelegate;
