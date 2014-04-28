@@ -421,14 +421,14 @@
         {
             if (_vertical)
             {
-                frame = CGRectMake(0.0f, (self.frame.size.height - _itemSize.height * _itemsPerPage)/2.0f,
-                                   self.frame.size.width, _itemSize.height * _itemsPerPage);
+                frame = CGRectMake(0.0f, (self.bounds.size.height - _itemSize.height * _itemsPerPage)/2.0f,
+                                   self.bounds.size.width, _itemSize.height * _itemsPerPage);
                 contentSize.height = _itemSize.height * _numberOfItems;
             }
             else
             {
-                frame = CGRectMake((self.frame.size.width - _itemSize.width * _itemsPerPage)/2.0f,
-                                   0.0f, _itemSize.width * _itemsPerPage, self.frame.size.height);
+                frame = CGRectMake((self.bounds.size.width - _itemSize.width * _itemsPerPage)/2.0f,
+                                   0.0f, _itemSize.width * _itemsPerPage, self.bounds.size.height);
                 contentSize.width = _itemSize.width * _numberOfItems;
             }
             break;
@@ -437,13 +437,13 @@
         {
             if (_vertical)
             {
-                frame = CGRectMake(0.0f, 0.0f, self.frame.size.width, _itemSize.height * _itemsPerPage);
-                contentSize.height = _itemSize.height * _numberOfItems - (self.frame.size.height - frame.size.height);
+                frame = CGRectMake(0.0f, 0.0f, self.bounds.size.width, _itemSize.height * _itemsPerPage);
+                contentSize.height = _itemSize.height * _numberOfItems - (self.bounds.size.height - frame.size.height);
             }
             else
             {
-                frame = CGRectMake(0.0f, 0.0f, _itemSize.width * _itemsPerPage, self.frame.size.height);
-                contentSize.width = _itemSize.width * _numberOfItems - (self.frame.size.width - frame.size.width);
+                frame = CGRectMake(0.0f, 0.0f, _itemSize.width * _itemsPerPage, self.bounds.size.height);
+                contentSize.width = _itemSize.width * _numberOfItems - (self.bounds.size.width - frame.size.width);
             }
             break;
         }
