@@ -253,6 +253,7 @@ Release Notes
 
 Version 1.3.2
 
+- Scroll offsets are now calculated correctly when SwipeView is scaled or rotated
 - Reverted fix from 1.3.1 as it caused other scrollOffset bugs that were worse 
 
 Version 1.3.1
