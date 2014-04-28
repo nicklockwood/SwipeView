@@ -251,6 +251,10 @@ If you wish to detect other types of interaction such as swipes, double taps or 
 Release Notes
 ----------------
 
+Version 1.3.2
+
+- Reverted fix from 1.3.1 as it caused other scrollOffset bugs that were worse 
+
 Version 1.3.1
 
 - Fixed bug with scrollOffset changing when screen is rotated

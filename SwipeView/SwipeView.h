@@ -1,7 +1,7 @@
 //
 //  SwipeView.h
 //
-//  Version 1.3.1
+//  Version 1.3.2
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design

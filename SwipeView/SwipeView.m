@@ -1,7 +1,7 @@
 //
 //  SwipeView.m
 //
-//  Version 1.3
+//  Version 1.3.2
 //
 //  Created by Nick Lockwood on 03/09/2010.
 //  Copyright 2010 Charcoal Design
@@ -72,7 +72,6 @@
 @property (nonatomic, strong) NSMutableSet *itemViewPool;
 @property (nonatomic, assign) NSInteger previousItemIndex;
 @property (nonatomic, assign) CGPoint previousContentOffset;
-@property (nonatomic, assign) CGRect previousViewFrame;
 @property (nonatomic, assign) CGSize itemSize;
 @property (nonatomic, assign) BOOL suppressScrollEvent;
 @property (nonatomic, assign) NSTimeInterval scrollDuration;
@@ -124,7 +123,6 @@
     _itemViews = [[NSMutableDictionary alloc] init];
     _previousItemIndex = 0;
     _previousContentOffset = _scrollView.contentOffset;
-    _previousViewFrame = _scrollView.frame;
     _scrollOffset = 0.0f;
     _currentItemIndex = 0;
     _numberOfItems = 0;
@@ -1139,16 +1137,7 @@
 
 - (void)scrollViewDidScroll:(__unused UIScrollView *)scrollView
 {
-    if (!CGRectEqualToRect(_previousViewFrame, _scrollView.frame))
-    {
-        //save previous data
-        _previousContentOffset = _scrollView.contentOffset;
-        _previousViewFrame = _scrollView.frame;
-        
-        //update view and call delegate
-        [self didScroll];
-    }
-    else if (!_suppressScrollEvent)
+    if (!_suppressScrollEvent)
     {
         //stop scrolling animation
         _scrolling = NO;
