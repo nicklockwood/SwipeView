@@ -29,6 +29,13 @@ Thread Safety
 
 SwipeView is derived from UIView and - as with all UIKit components - it should only be accessed from the main thread. You may wish to use threads for loading or updating SwipeView contents or items, but always ensure that once your content has loaded, you switch back to the main thread before updating the SwipeView.
 
+Examples
+--------------
+### Controls Example
+![controls](http://g.recordit.co/mDJordMqdm.gif)
+
+### Paging Example
+![paging](http://g.recordit.co/RKT9OEHboL.gif)
 
 Installation
 --------------
