@@ -273,7 +273,7 @@
 
 - (void)setAutoscroll:(CGFloat)autoscroll
 {
-    if (fabsf(_autoscroll - autoscroll) > 0.0001f)
+    if (fabs(_autoscroll - autoscroll) > 0.0001f)
     {
         _autoscroll = autoscroll;
         if (autoscroll) [self startAnimation];
@@ -391,11 +391,11 @@
             _scrollOffset = [self clampedOffset:_scrollOffset];
         }
     }
-    if (_vertical && fabsf(_scrollView.contentOffset.x) > 0.0001f)
+    if (_vertical && fabs(_scrollView.contentOffset.x) > 0.0001f)
     {
         [self setContentOffsetWithoutEvent:CGPointMake(0.0f, _scrollView.contentOffset.y)];
     }
-    else if (!_vertical && fabsf(_scrollView.contentOffset.y) > 0.0001f)
+    else if (!_vertical && fabs(_scrollView.contentOffset.y) > 0.0001f)
     {
         [self setContentOffsetWithoutEvent:CGPointMake(_scrollView.contentOffset.x, 0.0f)];
     }
@@ -613,7 +613,7 @@
     [self layOutItemViews];
     [_delegate swipeViewDidScroll:self];
     
-    if (!_defersItemViewLoading || fabsf([self minScrollDistanceFromOffset:_lastUpdateOffset toOffset:_scrollOffset]) >= 1.0f)
+    if (!_defersItemViewLoading || fabs([self minScrollDistanceFromOffset:_lastUpdateOffset toOffset:_scrollOffset]) >= 1.0f)
     {
         //update item index
         _currentItemIndex = [self clampedIndex:roundf(_scrollOffset)];
@@ -773,7 +773,7 @@
         {
             wrappedDistance = -wrappedDistance;
         }
-        return (fabsf(directDistance) <= fabsf(wrappedDistance))? directDistance: wrappedDistance;
+        return (fabs(directDistance) <= fabs(wrappedDistance))? directDistance: wrappedDistance;
     }
     return directDistance;
 }
@@ -794,7 +794,7 @@
 
 - (void)setScrollOffset:(CGFloat)scrollOffset
 {
-    if (fabsf(_scrollOffset - scrollOffset) > 0.0001f)
+    if (fabs(_scrollOffset - scrollOffset) > 0.0001f)
     {
         _scrollOffset = scrollOffset;
         _lastUpdateOffset = _scrollOffset - 1.0f; //force refresh
@@ -1185,7 +1185,7 @@
 {
     //prevent rounding errors from accumulating
     CGFloat integerOffset = roundf(_scrollOffset);
-    if (fabsf(_scrollOffset - integerOffset) < 0.01f)
+    if (fabs(_scrollOffset - integerOffset) < 0.01f)
     {
         _scrollOffset = integerOffset;
     }
